@@ -638,7 +638,7 @@ function render(i){active=i;var c=CASES[i];
     score=Math.max(0,Math.min(100,score));
     var w=(score/2).toFixed(0);
     var fill='<div class="mod-fill" style="width:'+w+'%;'+(pos?"left:50%":"right:50%")+';background:'+dc(m.dir)+'"></div>';
-    var label=viewMagFromWidth(score);
+    var label=(m.dir==="negative"?"-":"")+viewMagFromWidth(score);
     return '<div class="mod-row" title="relative contribution '+Math.round(score)+'"><div class="mod-name">'+vTag(m.view)+'</div><div class="mod-track"><div class="mod-axis"></div>'+fill+'</div><div class="mod-val" style="color:'+dc(m.dir)+'">'+label+'</div></div>';}).join("");
     document.getElementById("modblock").style.display="";}
   else{document.getElementById("modblock").style.display="none";}
