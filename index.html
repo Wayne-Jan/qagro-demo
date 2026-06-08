@@ -73,12 +73,24 @@ background-image:radial-gradient(circle at 1px 1px,rgba(26,34,48,.035) 1px,trans
 .fp-num{font-size:10px;font-weight:700;color:rgba(255,255,255,.85);text-shadow:0 1px 3px rgba(0,0,0,.75);text-align:center;white-space:nowrap;letter-spacing:.2px;}
 body.street .fp-num{color:rgba(26,34,48,.72);text-shadow:0 1px 2px rgba(255,255,255,.85);}
 .selector{position:relative;z-index:40;margin:24px 0 18px;display:flex;flex-direction:column;gap:14px;align-items:stretch;}
+.filter-summary{display:none;}
+.filter-host{min-width:0;}
 .filters{display:flex;gap:22px;flex-wrap:wrap;}
 .fgroup{display:flex;align-items:center;gap:7px;}
 .fl{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);font-weight:600;margin-right:3px;}
 .chipf{font-size:12px;font-weight:600;color:var(--slate);background:var(--paper2);border:1px solid var(--line);
 border-radius:999px;padding:5px 13px;cursor:pointer;transition:.18s;}
 .chipf:hover{border-color:#cfc8b6;} .chipf.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+.sheet-backdrop[hidden],.sheet[hidden]{display:none;}
+.sheet-backdrop{position:fixed;inset:0;z-index:900;background:rgba(12,16,24,.34);opacity:0;transition:opacity .18s ease;}
+.sheet-backdrop.open{opacity:1;}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:910;background:var(--paper2);border:1px solid var(--line);border-width:1px 0 0;border-radius:18px 18px 0 0;box-shadow:0 -24px 58px -28px rgba(26,34,48,.62);max-height:min(82dvh,580px);display:flex;flex-direction:column;transform:translateY(18px);opacity:0;transition:transform .22s cubic-bezier(.4,.8,.3,1),opacity .18s ease;}
+.sheet.open{transform:translateY(0);opacity:1;}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px 12px;border-bottom:1px solid var(--line);flex:none;}
+.sheet-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--ink);}
+.sheet-close{width:34px;height:34px;border:1px solid var(--line);border-radius:9px;background:#fffdf8;color:var(--ink);font-size:22px;line-height:1;cursor:pointer;}
+.sheet-body{overflow-y:auto;overscroll-behavior:contain;padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px));}
+body.sheet-lock{overflow:hidden;}
 .picker{display:flex;align-items:center;gap:8px;}
 .nav{width:34px;height:34px;border:1px solid var(--line);background:var(--paper2);border-radius:9px;cursor:pointer;
 font-size:17px;color:var(--ink);line-height:1;transition:.18s;}
@@ -321,12 +333,17 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
   .casepick{grid-template-columns:auto minmax(0,1fr);gap:8px;}
   .case-meta{grid-column:2;justify-content:flex-start;max-width:none;margin-top:5px;}
   .case-sub{font-size:10px;}
-  .combo-stats{margin:-3px 0 0;font-size:11px;}
-  .filters{display:flex;flex-direction:column;gap:10px;min-width:0;}
-  .fgroup{display:flex;align-items:center;gap:7px;width:100%;max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none;mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 28px),transparent);}
-  .fgroup::-webkit-scrollbar{display:none;}
-  .fl{position:sticky;left:0;z-index:2;flex:none;margin:0;padding-right:4px;background:var(--paper);}
-  .chipf{flex:none;white-space:nowrap;padding:5px 12px;}
+  .combo-stats{display:none;}
+  .filter-summary{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:9px;margin-top:-2px;}
+  .filter-open{display:inline-flex;align-items:center;gap:6px;height:34px;border:1px solid #d9d1c2;border-radius:10px;background:linear-gradient(180deg,#fffdf8,#f3eee3);color:var(--ink);font-family:var(--sans);font-size:11px;font-weight:800;letter-spacing:.75px;text-transform:uppercase;padding:0 11px;box-shadow:0 8px 18px -17px rgba(26,34,48,.55);}
+  .filter-open svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;}
+  .filter-summary-text{min-width:0;font-size:10.5px;font-weight:700;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .filter-host{display:none;}
+  .sheet .filters{display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .sheet .fgroup{display:flex;align-items:center;gap:7px;width:100%;max-width:100%;min-width:0;overflow:visible;overscroll-behavior:auto;padding-bottom:0;scrollbar-width:auto;mask-image:none;flex-wrap:wrap;}
+  .sheet .fgroup::-webkit-scrollbar{display:initial;}
+  .sheet .fl{position:static;flex:0 0 100%;margin:0 0 1px;padding:0;background:transparent;}
+  .chipf{flex:none;white-space:nowrap;padding:6px 12px;}
   .stage{gap:18px;}
   #map{height:58vh;height:58dvh;min-height:360px;max-height:460px;}
   .mapwrap{border-radius:14px;}
@@ -402,14 +419,22 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
       <div class="cbox-menu" id="cboxMenu" role="listbox"></div>
     </div>
     <button id="next" class="nav" aria-label="next case">›</button><span id="count" class="count"></span></div>
+  <div class="filter-summary" id="filterSummary"><button class="filter-open" id="filterSheetBtn" type="button" aria-expanded="false" aria-controls="filterSheet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4"/></svg>Filters</button><span class="filter-summary-text" id="filterSummaryText">All filters</span></div>
   <div id="comboStats" class="combo-stats"></div>
-  <div class="filters">
-    <div class="fgroup"><span class="fl">crop</span><span class="chipf on" data-f="crop" data-v="all">all</span><span class="chipf" data-f="crop" data-v="Wheat">wheat</span><span class="chipf" data-f="crop" data-v="Corn">corn</span><span class="chipf" data-f="crop" data-v="Soybean">soybean</span></div>
-    <div class="fgroup"><span class="fl">sample ratio</span><span class="chipf on" data-f="sr" data-v="all">all</span><span class="chipf" data-f="sr" data-v="0.01">0.01</span><span class="chipf" data-f="sr" data-v="0.02">0.02</span><span class="chipf" data-f="sr" data-v="0.05">0.05</span><span class="chipf" data-f="sr" data-v="0.1">0.1</span><span class="chipf" data-f="sr" data-v="0.2">0.2</span><span class="chipf" data-f="sr" data-v="0.3">0.3</span><span class="chipf" data-f="sr" data-v="0.4">0.4</span><span class="chipf" data-f="sr" data-v="0.5">0.5</span></div>
-    <div class="fgroup"><span class="fl">analogue</span><span class="chipf on" data-f="scope" data-v="all">all</span><span class="chipf" data-f="scope" data-v="local">local only</span><span class="chipf" data-f="scope" data-v="cross">cross-country</span></div>
-    <div class="fgroup"><span class="fl">country</span><span class="chipf on" data-f="country" data-v="all">all</span><span class="chipf" data-f="country" data-v="Argentina">Argentina</span><span class="chipf" data-f="country" data-v="Brazil">Brazil</span><span class="chipf" data-f="country" data-v="Germany">Germany</span><span class="chipf" data-f="country" data-v="Uruguay">Uruguay</span></div>
+  <div class="filter-host" id="filterHost">
+    <div class="filters" id="filters">
+      <div class="fgroup"><span class="fl">crop</span><span class="chipf on" data-f="crop" data-v="all">all</span><span class="chipf" data-f="crop" data-v="Wheat">wheat</span><span class="chipf" data-f="crop" data-v="Corn">corn</span><span class="chipf" data-f="crop" data-v="Soybean">soybean</span></div>
+      <div class="fgroup"><span class="fl">sample ratio</span><span class="chipf on" data-f="sr" data-v="all">all</span><span class="chipf" data-f="sr" data-v="0.01">0.01</span><span class="chipf" data-f="sr" data-v="0.02">0.02</span><span class="chipf" data-f="sr" data-v="0.05">0.05</span><span class="chipf" data-f="sr" data-v="0.1">0.1</span><span class="chipf" data-f="sr" data-v="0.2">0.2</span><span class="chipf" data-f="sr" data-v="0.3">0.3</span><span class="chipf" data-f="sr" data-v="0.4">0.4</span><span class="chipf" data-f="sr" data-v="0.5">0.5</span></div>
+      <div class="fgroup"><span class="fl">analogue</span><span class="chipf on" data-f="scope" data-v="all">all</span><span class="chipf" data-f="scope" data-v="local">local only</span><span class="chipf" data-f="scope" data-v="cross">cross-country</span></div>
+      <div class="fgroup"><span class="fl">country</span><span class="chipf on" data-f="country" data-v="all">all</span><span class="chipf" data-f="country" data-v="Argentina">Argentina</span><span class="chipf" data-f="country" data-v="Brazil">Brazil</span><span class="chipf" data-f="country" data-v="Germany">Germany</span><span class="chipf" data-f="country" data-v="Uruguay">Uruguay</span></div>
+    </div>
   </div>
 </div>
+<div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+<section class="sheet" id="filterSheet" role="dialog" aria-modal="true" aria-labelledby="filterSheetTitle" hidden>
+  <div class="sheet-h"><div class="sheet-title" id="filterSheetTitle">Filters</div><button class="sheet-close" id="filterSheetClose" type="button" aria-label="Close filters">×</button></div>
+  <div class="sheet-body" id="filterSheetBody"></div>
+</section>
 <section class="stage">
   <div class="mapwrap">
     <div id="map"></div>
@@ -545,12 +570,58 @@ var satImg=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Wor
 var satRef=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,opacity:.85});
 var street=L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:19,attribution:'© OpenStreetMap © CARTO'});
 var bmmode="sat",linkColor="#eef3f7",hiColor="#ffd23f",casingColor="rgba(8,14,22,.5)";
-var layer=L.layerGroup().addTo(map),markers={},shapes={},active=0,filt={crop:"all",stance:"all",sr:"all",scope:"all",country:"all"};
+var layer=L.layerGroup().addTo(map),markers={},shapes={},active=0,filt={crop:"all",sr:"all",scope:"all",country:"all"};
 var mapResizeTimer=null;
 function queueMapResize(){clearTimeout(mapResizeTimer);mapResizeTimer=setTimeout(function(){map.invalidateSize();virt.rowH=0;renderVirtualMenu();},160);}
 window.addEventListener("resize",queueMapResize);
 window.addEventListener("orientationchange",queueMapResize);
 if(window.visualViewport){window.visualViewport.addEventListener("resize",queueMapResize);}
+var mobileFilterMQ=window.matchMedia("(max-width:640px)");
+var activeOverlay=null,lastOverlayFocus=null;
+function overlayEls(id){return {sheet:document.getElementById(id),backdrop:document.getElementById("sheetBackdrop")};}
+function openOverlay(id,trigger){
+  closeOverlay();
+  var els=overlayEls(id);if(!els.sheet||!els.backdrop)return;
+  activeOverlay=id;lastOverlayFocus=trigger||document.activeElement;
+  els.backdrop.hidden=false;els.sheet.hidden=false;document.body.classList.add("sheet-lock");
+  requestAnimationFrame(function(){els.backdrop.classList.add("open");els.sheet.classList.add("open");});
+}
+function closeOverlay(){
+  if(!activeOverlay)return false;
+  var id=activeOverlay,els=overlayEls(id),focus=lastOverlayFocus;activeOverlay=null;lastOverlayFocus=null;
+  document.body.classList.remove("sheet-lock");
+  if(els.backdrop)els.backdrop.classList.remove("open");
+  if(els.sheet)els.sheet.classList.remove("open");
+  setTimeout(function(){if(!activeOverlay){if(els.backdrop)els.backdrop.hidden=true;if(els.sheet)els.sheet.hidden=true;}},190);
+  if(id==="filterSheet"){var btn=document.getElementById("filterSheetBtn");if(btn)btn.setAttribute("aria-expanded","false");}
+  if(focus&&focus.focus)setTimeout(function(){focus.focus();},0);
+  return true;
+}
+function filterValueText(f,v){
+  if(f==="crop")return v==="all"?"All crops":v;
+  if(f==="sr")return v==="all"?"All SR":"SR "+v;
+  if(f==="scope")return v==="all"?"All analogues":(v==="local"?"Local only":"Cross-country");
+  if(f==="country")return v==="all"?"All countries":v;
+  return String(v);
+}
+function filterSummaryParts(){return [filterValueText("crop",filt.crop),filterValueText("sr",filt.sr),filterValueText("scope",filt.scope),filterValueText("country",filt.country)];}
+function matchSummary(idx){var n=(idx||virt.idx||[]).length,loaded=DATA_MANIFEST&&INDEX_LOADED<INDEX_TOTAL;return n.toLocaleString()+(loaded?" loaded":" matches");}
+function renderFilterSummary(idx){
+  var t=document.getElementById("filterSummaryText");if(t)t.textContent=filterSummaryParts().join(" · ")+" — "+matchSummary(idx);
+}
+function updateComboStats(idx){
+  var el=document.getElementById("comboStats");if(!el)return;
+  el.innerHTML="<b>"+matchSummary(idx).replace(" loaded","</b> loaded").replace(" matches","</b> matches");
+  renderFilterSummary(idx);
+}
+function syncFilterPlacement(){
+  var filters=document.getElementById("filters"),host=document.getElementById("filterHost"),body=document.getElementById("filterSheetBody");
+  if(!filters||!host||!body)return;
+  if(mobileFilterMQ.matches){if(filters.parentNode!==body)body.appendChild(filters);}
+  else{if(filters.parentNode!==host)host.appendChild(filters);closeOverlay();}
+  renderFilterSummary(virt.idx);
+}
+if(mobileFilterMQ.addEventListener)mobileFilterMQ.addEventListener("change",syncFilterPlacement);else mobileFilterMQ.addListener(syncFilterPlacement);
 function setBase(m){[satImg,satRef,street].forEach(function(l){map.removeLayer(l);});
   if(m==="street"){street.addTo(map);linkColor="#2b3442";hiColor="#1a2230";casingColor="rgba(255,255,255,.92)";document.body.classList.add("street");}
   else{satImg.addTo(map);satRef.addTo(map);linkColor="#eef3f7";hiColor="#ffd23f";casingColor="rgba(8,14,22,.5)";document.body.classList.remove("street");}
@@ -765,9 +836,10 @@ function render(i){active=i;var c=CASES[i];
 }
 function filtered(){return CASES.map(function(c,i){return i;}).filter(function(i){var c=CASES[i];
   var scopeOk=filt.scope==="all"||(filt.scope==="cross"&&c.cross===true)||(filt.scope==="local"&&c.cross===false);
-  return scopeOk&&(filt.crop==="all"||c.crop===filt.crop)&&(filt.stance==="all"||c.stance===filt.stance)&&(filt.sr==="all"||Number(c.sr)===Number(filt.sr))&&(filt.country==="all"||c.country===filt.country);});}
+  return scopeOk&&(filt.crop==="all"||c.crop===filt.crop)&&(filt.sr==="all"||Number(c.sr)===Number(filt.sr))&&(filt.country==="all"||c.country===filt.country);});}
 function rebuild(opts){opts=opts||{};var idx=filtered();
   document.getElementById("count").textContent="";
+  updateComboStats(idx);
   setVirtualIndexes(idx,Boolean(opts.resetScroll)&&!opts.preserveScroll);
   if(!idx.length){document.getElementById("cboxCur").textContent=(INDEX_EXTENDING||INDEX_LOADED<INDEX_TOTAL)?"Loading matching cases...":"No cases for this filter";document.getElementById("prev").disabled=true;document.getElementById("next").disabled=true;renderVirtualMenu();ensureVirtualCoverage();return;}
   if(idx.indexOf(active)<0){render(idx[0]);}else{setCur(active);}
@@ -775,11 +847,14 @@ function rebuild(opts){opts=opts||{};var idx=filtered();
 document.querySelectorAll(".chipf").forEach(function(ch){ch.addEventListener("click",function(){
   var f=ch.dataset.f;document.querySelectorAll('.chipf[data-f="'+f+'"]').forEach(function(x){x.classList.remove("on");});
   ch.classList.add("on");filt[f]=ch.dataset.v;virt.target=VIRT_BATCH;rebuild({resetScroll:true});ensureFilterCoverage();});});
+document.getElementById("filterSheetBtn").addEventListener("click",function(e){e.stopPropagation();this.setAttribute("aria-expanded","true");openOverlay("filterSheet",this);});
+document.getElementById("filterSheetClose").addEventListener("click",function(){closeOverlay();});
+document.getElementById("sheetBackdrop").addEventListener("click",function(){closeOverlay();});
 document.getElementById("cboxMenu").addEventListener("click",function(e){var opt=e.target.closest(".cbox-opt[data-i]");if(!opt)return;closeBox();render(parseInt(opt.dataset.i,10));});
 document.getElementById("cboxMenu").addEventListener("scroll",scheduleVirtualRender,{passive:true});
 document.getElementById("cboxBtn").addEventListener("click",function(e){e.stopPropagation();document.getElementById("cbox").classList.contains("open")?closeBox():openBox();});
 document.addEventListener("click",function(e){if(!document.getElementById("cbox").contains(e.target))closeBox();});
-document.addEventListener("keydown",function(e){if(e.key==="Escape")closeBox();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){if(closeOverlay())return;closeBox();}});
 function step(d){var idx=filtered();if(!idx.length)return;var p=idx.indexOf(active);if(p<0)p=0;render(idx[(p+d+idx.length)%idx.length]);}
 document.getElementById("prev").addEventListener("click",function(){step(-1);});
 document.getElementById("next").addEventListener("click",function(){step(1);});
@@ -790,6 +865,7 @@ document.querySelectorAll(".ptab").forEach(function(t){t.addEventListener("click
   document.querySelectorAll(".ptab").forEach(function(x){x.classList.toggle("active",x===t);});
   document.querySelectorAll(".ppane").forEach(function(p){p.classList.toggle("active",p.dataset.pane===pan);});});});
 map.on("zoomend",function(){if(CASES[active])draw(CASES[active],false,false);});
+syncFilterPlacement();
 initData();
 </script>
 </body></html>
