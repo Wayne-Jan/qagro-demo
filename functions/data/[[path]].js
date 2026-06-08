@@ -26,6 +26,10 @@ export async function onRequest(context) {
       headers: { Allow: "GET, HEAD" }
     });
   }
+  const url = new URL(context.request.url);
+  if (path === "manifest.json" && url.searchParams.get("return") === "1") {
+    return Response.redirect(new URL("/?load=1", url).toString(), 302);
+  }
 
   const object = await context.env.QAGRO_DATA.get(DATA_PREFIX + path);
   if (!object) return new Response("Not found", { status: 404 });
