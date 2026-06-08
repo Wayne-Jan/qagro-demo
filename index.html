@@ -417,9 +417,9 @@ function outcomePopup(c,role){
   var o=c.outcome;if(!o||o.calResidualDelta==null)return '<div class="lpop"><b>'+esc(role||"Query")+'</b><br>residual delta unavailable</div>';
   return '<div class="lpop"><b>'+esc(role||"Query")+'</b><br>'+esc(c.shortField)+'<div class="ld">'+
     '<span class="lk">Base residual (t/ha)</span><span class="lv">'+fd(o.baseResidual)+'</span>'+
-    '<span class="lk">Δ Calibration</span><span class="lv '+goodBy(o.calResidualAbsDelta)+'">'+fd(o.calResidualDelta)+'</span>'+
-    '<span class="lk">Δ q_agro</span><span class="lv '+goodBy(o.qagResidualAbsDelta)+'">'+fd(o.qagResidualDelta)+'</span>'+
-    '<span class="lk">Δ total</span><span class="lv '+goodBy(o.qagResidualAbsDeltaVsBase)+'">'+fd(o.qagResidualDeltaVsBase)+'</span>'+
+    '<span class="lk">Δ Calibration pred.</span><span class="lv '+goodBy(o.calResidualAbsDelta)+'">'+fd(o.calPredictionDelta)+'</span>'+
+    '<span class="lk">Δ q_agro pred.</span><span class="lv '+goodBy(o.qagResidualAbsDelta)+'">'+fd(o.qagPredictionDelta)+'</span>'+
+    '<span class="lk">Δ total pred.</span><span class="lv '+goodBy(o.qagResidualAbsDeltaVsBase)+'">'+fd(o.qagPredictionDeltaVsBase)+'</span>'+
     '</div></div>';
 }
 var map=L.map("map",{zoomControl:true,scrollWheelZoom:true});
