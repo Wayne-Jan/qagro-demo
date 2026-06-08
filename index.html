@@ -422,6 +422,17 @@ function outcomePopup(c,role){
     '<span class="lk">Δ total pred.</span><span class="lv '+goodBy(o.qagResidualAbsDeltaVsBase)+'">'+fd(o.qagPredictionDeltaVsBase)+'</span>'+
     '</div></div>';
 }
+function neighborPopup(c,nb,role){
+  var pull=Number(nb.pull)||0,weight=Number(nb.weight)||0,contrib=weight*pull;
+  var color=dc(dirFrom(contrib));
+  var fshort=(fieldShort(nb.country,nb.name).split(" · ").pop()||nb.name);
+  return '<div class="lpop"><b>'+esc(role||nnLabel(nb.role)+" analogue")+'</b><br>'+esc(nb.country||"unknown")+' · '+esc(fshort)+'<div class="ld">'+
+    '<span class="lk">Analogue anomaly</span><span class="lv" style="color:'+dc(nb.dir)+'">'+fd(pull)+'</span>'+
+    '<span class="lk">Retrieval weight</span><span class="lv">'+Math.round(weight*100)+'%</span>'+
+    '<span class="lk">q_agro contribution</span><span class="lv" style="color:'+color+'">'+fd(contrib)+'</span>'+
+    '<span class="lk">Fused distance</span><span class="lv">'+(Number(nb.dist)||0).toFixed(2)+'</span>'+
+    '</div></div>';
+}
 var map=L.map("map",{zoomControl:true,scrollWheelZoom:true});
 var satImg=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:'© Esri, Maxar'});
 var satRef=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,opacity:.85});
@@ -473,7 +484,7 @@ function draw(c,fit,anim){
     if(withFootprints){addFootprint(nb.footprint,nb.role,dc(nb.dir),dc(nb.dir),cr?.14:.18,"neighbor-mask");}
     var m=L.circleMarker(na,{radius:6+11*nb.weight,color:"#fff",weight:1.8,fillColor:dc(nb.dir),fillOpacity:cr?.72:.96}).addTo(layer);
     m.bindTooltip(nnLabel(nb.role),{permanent:true,direction:"top",offset:[0,-7],className:"nlabel"});
-    m.bindPopup(outcomePopup(c,nnLabel(nb.role)+' analogue'));
+    m.bindPopup(neighborPopup(c,nb,nnLabel(nb.role)+' analogue'));
     m.on("mouseover",function(){hot(nb.role,true);m.openPopup();});m.on("mouseout",function(){hot(nb.role,false);m.closePopup();});
     markers[nb.role]=m;});
   if(fit!==false){fitCaseMap(c);}
@@ -520,8 +531,8 @@ function nbt(c){var box=document.getElementById("nbt");
         (yr?'<span class="nc-yr">· '+esc(yr)+'</span>':'')+
         '<span class="nc-w" title="retrieval weight"><span class="nc-w-bar"><i style="width:'+(100*nb.weight/wmax).toFixed(0)+'%;background:'+color+'"></i></span><b>'+Math.round(nb.weight*100)+'</b></span></div>'+
       '<div class="nc-sub"><span class="nc-geo'+(cr?' xr':'')+'">'+(cr?'cross-region':'same-region')+'</span><span class="nc-pull">'+esc(c.crop)+' analogue · Δ '+pullTxt+' t/ha</span></div>'+
-      '<div class="nc-stats"><div class="nc-stat"><span class="nc-k">fused distance</span><span class="nc-v">'+nb.dist.toFixed(2)+'</span></div>'+
-        '<div class="nc-stat"><span class="nc-k">prediction effect</span><span class="nc-v" style="color:'+color+'">'+esc(nb.dir)+' / '+esc(nb.mag)+'</span></div></div>'+
+      '<div class="nc-stats"><div class="nc-stat"><span class="nc-k">retrieval weight</span><span class="nc-v">'+Math.round(nb.weight*100)+'%</span></div>'+
+        '<div class="nc-stat"><span class="nc-k">q_agro contribution</span><span class="nc-v" style="color:'+dc(dirFrom(nb.weight*pull))+'">'+fd(nb.weight*pull)+'</span></div></div>'+
       '<div class="nc-views">'+vrows+'</div></div>';
   }).join("");
   box.innerHTML='<div class="ncards">'+html+'</div>';
