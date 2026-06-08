@@ -510,7 +510,7 @@ function outcomePopup(c,role){
     '<span class="lpok">Base</span><span class="lpon">'+pn(o.basePrediction)+'</span><span class="lpon">—</span>'+
     '<span class="lpok">Calibration</span><span class="lpon">'+pn(o.calPrediction)+'</span><span class="lpon" style="color:'+dc(dirFrom(o.calPredictionDelta))+'">'+pd(o.calPredictionDelta)+'</span>'+
     '<span class="lpok">q_agro</span><span class="lpon">'+pn(o.qagPrediction)+'</span><span class="lpon" style="color:'+dc(dirFrom(o.qagPredictionDelta))+'">'+pd(o.qagPredictionDelta)+'</span>'+
-    '<span class="lpok lpgt">Ground Truth</span><span class="lpon" style="color:#0072CE">'+pn(o.targetYield)+'</span><span class="lpon" style="color:#D55E00">'+pd(gtDiff)+'</span>'+
+    '<span class="lpok lpgt">Ground Truth</span><span class="lpon" style="color:#0072CE">'+pn(o.targetYield)+'</span><span class="lpon" style="color:'+dc(dirFrom(gtDiff))+'">'+pd(gtDiff)+'</span>'+
     '</div></div>';
 }
 function neighborPopup(c,nb,role){
@@ -523,7 +523,7 @@ function neighborPopup(c,nb,role){
     '<span class="lk">Δ Calibration</span><span class="lv" style="color:'+dc(dirFrom(calPred))+'">'+pf(calPred)+'</span>'+
     '<span class="lk">Δ q_agro</span><span class="lv" style="color:'+dc(dirFrom(qagPred))+'">'+pf(qagPred)+'</span>'+
     '<span class="lk">Δ total</span><span class="lv" style="color:'+dc(dirFrom(totalPred))+'">'+pf(totalPred)+'</span>'+
-    '<span class="lk">GT diff</span><span class="lv" style="color:#D55E00">'+(Number.isFinite(gtPredDiff)?pf(gtPredDiff):"n/a")+'</span>'+
+    '<span class="lk">GT diff</span><span class="lv" style="color:'+(Number.isFinite(gtPredDiff)?dc(dirFrom(gtPredDiff)):"#888")+'">'+(Number.isFinite(gtPredDiff)?pf(gtPredDiff):"n/a")+'</span>'+
     '</div></div>';
 }
 var map=L.map("map",{zoomControl:true,scrollWheelZoom:true});
