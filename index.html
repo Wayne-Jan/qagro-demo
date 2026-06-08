@@ -535,7 +535,6 @@ function geoNote(raw,neighbors){if(!neighbors.length)return "query placeholder Â
 function renderLoading(i,c){active=i;setCur(i);markSel(i);document.getElementById("field").innerHTML=fieldTitle(c);document.getElementById("field").title=c.field;document.getElementById("correction").innerHTML='<div class="bh-sub2">Loading case evidence...</div>';document.getElementById("attrblock").style.display="none";document.getElementById("modblock").style.display="none";document.getElementById("decomp").innerHTML="";document.getElementById("fused").innerHTML="";document.getElementById("nbt").innerHTML="";document.getElementById("chips").innerHTML="";}
 function showAuthRequired(){document.getElementById("field").innerHTML='<span class="hc">q_agro demo</span>';document.getElementById("cboxCur").textContent="Protected data";document.getElementById("prev").disabled=true;document.getElementById("next").disabled=true;document.getElementById("attrblock").style.display="none";document.getElementById("modblock").style.display="none";document.getElementById("decomp").innerHTML="";document.getElementById("fused").innerHTML="";document.getElementById("nbt").innerHTML="";document.getElementById("chips").innerHTML="";document.getElementById("correction").innerHTML='<div class="auth-card"><div class="auth-title">Protected data</div><p class="auth-copy">This public demo loads its case evidence from protected YieldSAT data.</p><a class="auth-btn" href="/data/manifest.json?return=1">Load protected data</a></div>';}
 function initData(){document.getElementById("cboxCur").textContent="Loading q_agro cases...";loadInitialIndex().catch(function(err){console.error(err);if(err&&err.authRequired){showAuthRequired();return;}document.getElementById("cboxCur").textContent="Failed to load data";document.getElementById("count").textContent=err.message;});}
-function initApp(){DATA_PARAMS.get("load")==="1"?initData():showAuthRequired();}
 function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
 function nnLabel(role){return String(role).replace(/^NN/,"Top-");}
 function dcls(v){return v<=0?"good":"warn";}
@@ -875,6 +874,6 @@ document.querySelectorAll(".ptab").forEach(function(t){t.addEventListener("click
   document.querySelectorAll(".ppane").forEach(function(p){p.classList.toggle("active",p.dataset.pane===pan);});});});
 map.on("zoomend",function(){if(CASES[active])draw(CASES[active],false,false);});
 syncFilterPlacement();
-initApp();
+initData();
 </script>
 </body></html>
