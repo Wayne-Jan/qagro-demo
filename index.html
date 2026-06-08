@@ -304,6 +304,9 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
 .outcome-good .onum.to{color:#0c7a4b;} .outcome-warn .onum.to{color:#b3530a;}
 .olab{font-size:11.5px;color:var(--slate);margin-top:11px;line-height:1.5;} .olab b{color:var(--ink);}
 .foot{margin-top:54px;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--mut);line-height:1.8;text-align:center;font-weight:500;}
+.foot .thanks{display:block;color:var(--slate);font-weight:600;}
+.foot a{color:var(--indigo);font-weight:800;text-decoration:none;border-bottom:1px solid rgba(69,56,201,.28);}
+.foot a:hover{border-bottom-color:currentColor;}
 @media(max-width:640px){
   .wrap{padding:18px 12px 48px;}
   .selector{margin:14px 0 14px;gap:10px;}
@@ -314,11 +317,11 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
   .case-meta{grid-column:2;justify-content:flex-start;max-width:none;margin-top:5px;}
   .case-sub{font-size:10px;}
   .combo-stats{margin:-3px 0 0;font-size:11px;}
-  .filters{display:flex;flex-direction:column;gap:9px;}
-  .fgroup{display:grid;grid-template-rows:auto auto;grid-auto-flow:column;grid-auto-columns:max-content;gap:5px 7px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none;mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 28px),transparent);}
+  .filters{display:flex;flex-direction:column;gap:10px;min-width:0;}
+  .fgroup{display:flex;align-items:center;gap:7px;width:100%;max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none;mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 28px),transparent);}
   .fgroup::-webkit-scrollbar{display:none;}
-  .fl{grid-row:1;grid-column:1/-1;margin:0;}
-  .chipf{grid-row:2;white-space:nowrap;padding:5px 12px;}
+  .fl{position:sticky;left:0;z-index:2;flex:none;margin:0;padding-right:4px;background:var(--paper);}
+  .chipf{flex:none;white-space:nowrap;padding:5px 12px;}
   .stage{gap:18px;}
   #map{height:58vh;height:58dvh;min-height:360px;max-height:460px;}
   .mapwrap{border-radius:14px;}
@@ -338,14 +341,16 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
   .c-head{align-items:flex-start;margin-bottom:12px;}
   .ctag{font-size:11px;}
   .cbadges{justify-content:flex-start;}
-  .cprog{grid-template-columns:1fr;gap:5px;text-align:left;overflow:visible;}
-  .cstep{align-items:flex-start;padding:7px 0;}
-  .cn{font-size:26px;}
+  .cprog{grid-template-columns:1fr;gap:4px;text-align:left;overflow:visible;}
+  .cstep{display:grid;grid-template-columns:1fr auto;grid-template-areas:"label num";align-items:baseline;gap:10px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(251,250,246,.82);box-shadow:0 8px 18px -20px rgba(26,34,48,.55);}
+  .cn{grid-area:num;font-size:27px;letter-spacing:-.35px;text-align:right;}
+  .cl{grid-area:label;}
   .cl{font-size:9.5px;}
-  .ca{margin:0;align-items:flex-start;color:transparent;font-size:0;gap:2px;}
-  .ca::after{content:"↓";font-family:var(--serif);font-size:17px;line-height:1;color:#cabfa6;margin-left:9px;}
+  .ca{margin:-2px 0;min-height:25px;align-items:flex-start;color:transparent;font-size:0;gap:0;padding-left:14px;}
+  .ca::before{content:"";order:2;height:14px;border-left:1px solid #d8cfbd;margin:3px 0 0 10px;}
+  .ca::after{content:"↓";order:3;font-family:var(--serif);font-size:15px;line-height:1;color:#cabfa6;margin:2px 0 0 5px;}
   .ca.gt-compare::after{color:#D55E00;}
-  .ca-d{font-size:10px;}
+  .ca-d{order:1;font-size:10px;margin-left:12px;}
   .mod-row{grid-template-columns:76px 1fr 58px;gap:8px;}
   .mod-name{font-size:11.5px;}
   .mod-val{font-size:11.5px;}
@@ -388,7 +393,6 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
   <div id="comboStats" class="combo-stats"></div>
   <div class="filters">
     <div class="fgroup"><span class="fl">crop</span><span class="chipf on" data-f="crop" data-v="all">all</span><span class="chipf" data-f="crop" data-v="Wheat">wheat</span><span class="chipf" data-f="crop" data-v="Corn">corn</span><span class="chipf" data-f="crop" data-v="Soybean">soybean</span></div>
-    <div class="fgroup"><span class="fl">evidence</span><span class="chipf on" data-f="stance" data-v="all">all</span><span class="chipf" data-f="stance" data-v="consensus">consensus</span><span class="chipf" data-f="stance" data-v="conflict">conflict</span></div>
     <div class="fgroup"><span class="fl">sample ratio</span><span class="chipf on" data-f="sr" data-v="all">all</span><span class="chipf" data-f="sr" data-v="0.01">0.01</span><span class="chipf" data-f="sr" data-v="0.02">0.02</span><span class="chipf" data-f="sr" data-v="0.05">0.05</span><span class="chipf" data-f="sr" data-v="0.1">0.1</span><span class="chipf" data-f="sr" data-v="0.2">0.2</span><span class="chipf" data-f="sr" data-v="0.3">0.3</span><span class="chipf" data-f="sr" data-v="0.4">0.4</span><span class="chipf" data-f="sr" data-v="0.5">0.5</span></div>
     <div class="fgroup"><span class="fl">country</span><span class="chipf on" data-f="country" data-v="all">all</span><span class="chipf" data-f="country" data-v="Argentina">Argentina</span><span class="chipf" data-f="country" data-v="Brazil">Brazil</span><span class="chipf" data-f="country" data-v="Germany">Germany</span><span class="chipf" data-f="country" data-v="Uruguay">Uruguay</span></div>
   </div>
@@ -423,7 +427,7 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
     </div>
   </aside>
 </section>
-<div class="foot">Imagery © Esri · Basemap © CARTO. Dataset kindly provided by <a href="https://yieldsat.github.io/" target="_blank" rel="noopener">YieldSAT</a>.</div>
+<div class="foot">Imagery © Esri · Basemap © CARTO.<span class="thanks">With sincere thanks to <a href="https://yieldsat.github.io/" target="_blank" rel="noopener">YieldSAT</a> for kindly providing the dataset used in this demo.</span></div>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>let CASES=[];
