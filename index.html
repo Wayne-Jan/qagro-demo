@@ -47,6 +47,8 @@ background-image:radial-gradient(circle at 1px 1px,rgba(26,34,48,.035) 1px,trans
 .auth-copy{font-size:13px;line-height:1.45;color:var(--slate);margin:0 0 14px;}
 .auth-btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid #2f24aa;background:var(--indigo);color:#fff;text-decoration:none;border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;box-shadow:0 6px 14px rgba(69,56,201,.18);}
 .auth-btn:hover{background:#3629b0;color:#fff;}
+.access-link{margin-left:8px;color:var(--mut)!important;font-weight:700!important;border-bottom:1px dotted rgba(122,130,144,.45)!important;}
+.access-link:hover{color:var(--indigo)!important;border-bottom-color:currentColor!important;}
 .mod-row{display:grid;grid-template-columns:88px 1fr 88px;align-items:center;gap:9px;margin-bottom:9px;}
 .mod-name{font-size:12.5px;font-weight:700;color:var(--slate);}
 .mod-track{position:relative;height:16px;background:#f0ece4;border-radius:6px;overflow:hidden;}
@@ -325,7 +327,7 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
 .outcome-good .onum.to{color:#0c7a4b;} .outcome-warn .onum.to{color:#b3530a;}
 .olab{font-size:11.5px;color:var(--slate);margin-top:11px;line-height:1.5;} .olab b{color:var(--ink);}
 .foot{margin-top:54px;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--mut);line-height:1.8;text-align:center;font-weight:500;}
-.foot .thanks{display:block;color:var(--slate);font-weight:600;}
+.foot .thanks{color:var(--slate);font-weight:600;}
 .foot a{color:var(--indigo);font-weight:800;text-decoration:none;border-bottom:1px solid rgba(69,56,201,.28);}
 .foot a:hover{border-bottom-color:currentColor;}
 @media(max-width:640px){
@@ -401,7 +403,7 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
   .dv-val{width:58px;font-size:9px;}
   .chips{grid-template-columns:1fr;}
   .foot{margin-top:40px;padding:18px 8px calc(92px + env(safe-area-inset-bottom,0px));line-height:1.65;}
-  .foot .thanks{margin-top:4px;}
+  .foot .thanks{margin-left:0;}
   .lpop,.leaflet-popup-content{max-width:min(86vw,320px);overflow-wrap:anywhere;}
   .lpopt{gap:4px 9px;}
 }
@@ -471,13 +473,14 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
     </div>
   </aside>
 </section>
-<div class="foot">Imagery © Esri · Basemap © CARTO.<span class="thanks">With sincere thanks to <a href="https://yieldsat.github.io/" target="_blank" rel="noopener">YieldSAT</a> for kindly providing the dataset used in this demo.</span></div>
+<div class="foot">Imagery © Esri · Basemap © CARTO. <span class="thanks">With sincere thanks to <a href="https://yieldsat.github.io/" target="_blank" rel="noopener">YieldSAT</a> for kindly providing the dataset used in this demo.</span> <a class="access-link" href="/data/manifest.json?return=1">Data access</a></div>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>let CASES=[];
 let DATA_MANIFEST=null;
 let DATA_PARAMS=new URLSearchParams(location.search);
-let DATA_ROOT=(DATA_PARAMS.get("dataRoot")||DATA_PARAMS.get("data")||window.QAGRO_DATA_ROOT||"/data").replace(/\/$/,"");
+let DATA_MODE=DATA_PARAMS.get("load")==="1"?"full":"public";
+let DATA_ROOT=(DATA_PARAMS.get("dataRoot")||DATA_PARAMS.get("data")||window.QAGRO_DATA_ROOT||(DATA_MODE==="full"?"/data":"/public_data")).replace(/\/$/,"");
 let CASE_CACHE=new Map();
 let FOOTPRINTS=null;
 let INDEX_LOADING=false;
@@ -533,7 +536,7 @@ function modalityFrom(raw,neighbors,qagDelta){if(raw.modality&&raw.modality.leng
 function chipsFrom(raw,neighbors){var weighted=neighbors.reduce(function(a,n){return a+n.weight*(n.dir==="negative"?-1:(n.dir==="positive"?1:0));},0);return [{k:"calibration shift",v:dirFrom(raw.calibration_prediction_delta)+" / "+magFrom(raw.calibration_prediction_delta),tone:"neutral"},{k:"q_agro correction",v:dirFrom(raw.qagro_prediction_delta)+" / "+magFrom(raw.qagro_prediction_delta),tone:"neutral"},{k:"q_agro vs calibration",v:(raw.qagro_vs_calibration==="opposite"?"opposite direction":"same direction"),tone:raw.qagro_vs_calibration==="opposite"?"warn":"good"},{k:"evidence status",v:String(raw.evidence_status||"unknown"),tone:raw.evidence_status==="topk_exported"?"good":"neutral"},{k:"neighbour direction",v:neighbors.length?dirFrom(weighted)+" (weighted)":"not exported",tone:"neutral"},{k:"modality agreement",v:String(raw.stance||"mixed"),tone:raw.stance==="conflict"?"warn":"good"}];}
 function geoNote(raw,neighbors){if(!neighbors.length)return "query placeholder · "+String(raw.evidence_status||"needs_topk_export");var cross=neighbors.filter(function(n){return n.geo==="cross-region";}).length;if(cross===0)return "all analogues local";if(cross===neighbors.length)return "all analogues cross-region";return cross+" cross-region analogue"+(cross>1?"s":"");}
 function renderLoading(i,c){active=i;setCur(i);markSel(i);document.getElementById("field").innerHTML=fieldTitle(c);document.getElementById("field").title=c.field;document.getElementById("correction").innerHTML='<div class="bh-sub2">Loading case evidence...</div>';document.getElementById("attrblock").style.display="none";document.getElementById("modblock").style.display="none";document.getElementById("decomp").innerHTML="";document.getElementById("fused").innerHTML="";document.getElementById("nbt").innerHTML="";document.getElementById("chips").innerHTML="";}
-function showAuthRequired(){document.getElementById("field").innerHTML='<span class="hc">q_agro demo</span>';document.getElementById("cboxCur").textContent="Protected data";document.getElementById("prev").disabled=true;document.getElementById("next").disabled=true;document.getElementById("attrblock").style.display="none";document.getElementById("modblock").style.display="none";document.getElementById("decomp").innerHTML="";document.getElementById("fused").innerHTML="";document.getElementById("nbt").innerHTML="";document.getElementById("chips").innerHTML="";document.getElementById("correction").innerHTML='<div class="auth-card"><div class="auth-title">Protected data</div><p class="auth-copy">This public demo loads its case evidence from protected YieldSAT data.</p><a class="auth-btn" href="/data/manifest.json?return=1">Load protected data</a></div>';}
+function showAuthRequired(){document.getElementById("field").innerHTML='<span class="hc">q_agro demo</span>';document.getElementById("cboxCur").textContent="Public subset";document.getElementById("prev").disabled=true;document.getElementById("next").disabled=true;document.getElementById("attrblock").style.display="none";document.getElementById("modblock").style.display="none";document.getElementById("decomp").innerHTML="";document.getElementById("fused").innerHTML="";document.getElementById("nbt").innerHTML="";document.getElementById("chips").innerHTML="";document.getElementById("correction").innerHTML='<div class="auth-card"><div class="auth-title">Full data access</div><p class="auth-copy">The public page uses a small demo subset. Sign in to load the protected full dataset.</p><a class="auth-btn" href="/data/manifest.json?return=1">Sign in for full data</a></div>';}
 function initData(){document.getElementById("cboxCur").textContent="Loading q_agro cases...";loadInitialIndex().catch(function(err){console.error(err);if(err&&err.authRequired){showAuthRequired();return;}document.getElementById("cboxCur").textContent="Failed to load data";document.getElementById("count").textContent=err.message;});}
 function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
 function nnLabel(role){return String(role).replace(/^NN/,"Top-");}
