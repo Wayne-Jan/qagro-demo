@@ -423,14 +423,11 @@ function outcomePopup(c,role){
     '</div></div>';
 }
 function neighborPopup(c,nb,role){
-  var pull=Number(nb.pull)||0,weight=Number(nb.weight)||0,contrib=weight*pull;
-  var color=dc(dirFrom(contrib));
+  var resid=Number(nb.pull)||0,gtDiff=Math.abs(resid);
   var fshort=(fieldShort(nb.country,nb.name).split(" · ").pop()||nb.name);
   return '<div class="lpop"><b>'+esc(role||nnLabel(nb.role)+" analogue")+'</b><br>'+esc(nb.country||"unknown")+' · '+esc(fshort)+'<div class="ld">'+
-    '<span class="lk">Analogue anomaly</span><span class="lv" style="color:'+dc(nb.dir)+'">'+fd(pull)+'</span>'+
-    '<span class="lk">Retrieval weight</span><span class="lv">'+Math.round(weight*100)+'%</span>'+
-    '<span class="lk">q_agro contribution</span><span class="lv" style="color:'+color+'">'+fd(contrib)+'</span>'+
-    '<span class="lk">Fused distance</span><span class="lv">'+(Number(nb.dist)||0).toFixed(2)+'</span>'+
+    '<span class="lk">Field residual (t/ha)</span><span class="lv" style="color:'+dc(nb.dir)+'">'+fd(resid)+'</span>'+
+    '<span class="lk">GT diff</span><span class="lv">'+gtDiff.toFixed(2)+'</span>'+
     '</div></div>';
 }
 var map=L.map("map",{zoomControl:true,scrollWheelZoom:true});
@@ -531,8 +528,8 @@ function nbt(c){var box=document.getElementById("nbt");
         (yr?'<span class="nc-yr">· '+esc(yr)+'</span>':'')+
         '<span class="nc-w" title="retrieval weight"><span class="nc-w-bar"><i style="width:'+(100*nb.weight/wmax).toFixed(0)+'%;background:'+color+'"></i></span><b>'+Math.round(nb.weight*100)+'</b></span></div>'+
       '<div class="nc-sub"><span class="nc-geo'+(cr?' xr':'')+'">'+(cr?'cross-region':'same-region')+'</span><span class="nc-pull">'+esc(c.crop)+' analogue · Δ '+pullTxt+' t/ha</span></div>'+
-      '<div class="nc-stats"><div class="nc-stat"><span class="nc-k">retrieval weight</span><span class="nc-v">'+Math.round(nb.weight*100)+'%</span></div>'+
-        '<div class="nc-stat"><span class="nc-k">q_agro contribution</span><span class="nc-v" style="color:'+dc(dirFrom(nb.weight*pull))+'">'+fd(nb.weight*pull)+'</span></div></div>'+
+      '<div class="nc-stats"><div class="nc-stat"><span class="nc-k">fused distance</span><span class="nc-v">'+nb.dist.toFixed(2)+'</span></div>'+
+        '<div class="nc-stat"><span class="nc-k">GT diff</span><span class="nc-v">'+Math.abs(pull).toFixed(2)+'</span></div></div>'+
       '<div class="nc-views">'+vrows+'</div></div>';
   }).join("");
   box.innerHTML='<div class="ncards">'+html+'</div>';
