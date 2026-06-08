@@ -64,10 +64,10 @@ background-image:radial-gradient(circle at 1px 1px,rgba(26,34,48,.035) 1px,trans
 .ppanes{padding-top:16px;flex:1;min-height:0;display:flex;}
 .ppane{display:none;}
 .ppane.active{display:block;width:100%;animation:paneIn .3s ease;}
-.ppane[data-pane="main"].active{display:grid;grid-template-rows:minmax(108px,.88fr) minmax(178px,1.3fr) minmax(112px,.92fr);gap:18px;height:100%;}
+.ppane[data-pane="main"].active{display:grid;grid-template-rows:minmax(108px,.88fr) minmax(148px,1.08fr) minmax(148px,1.08fr);gap:18px;height:100%;}
 .ppane[data-pane="main"].active .correction{align-self:center;}
+.ppane[data-pane="main"].active .attrblock{display:flex;flex-direction:column;justify-content:center;}
 .ppane[data-pane="main"].active .modblock{display:flex;flex-direction:column;justify-content:center;}
-.ppane[data-pane="main"].active .sigstrip{align-self:end;width:100%;}
 @keyframes paneIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
 @media (prefers-reduced-motion:reduce){.ppane.active{animation:none;}}
 .fp-num{font-size:10px;font-weight:700;color:rgba(255,255,255,.85);text-shadow:0 1px 3px rgba(0,0,0,.75);text-align:center;white-space:nowrap;letter-spacing:.2px;}
@@ -199,6 +199,7 @@ white-space:nowrap;border:1px solid rgba(255,255,255,.18);}
 .hc{flex:none;}
 .hdot{flex:none;color:var(--mut);font-weight:400;margin:0 -1px;}
 .hf{flex:none;color:var(--slate);}
+.attrblock{padding:0;border-top:1px solid var(--line);margin:0;}
 .sigstrip{margin:0;padding-top:0;}
 .sig{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:13px;overflow:hidden;}
 .sig-z{background:var(--paper2);padding:11px 13px 12px;}
@@ -357,9 +358,9 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
   .ppanes{display:block;padding-top:14px;min-height:0;}
   .ppane.active{width:100%;}
   .ppane[data-pane="main"].active{display:block;height:auto;}
-  .ppane[data-pane="main"].active .correction,.ppane[data-pane="main"].active .modblock,.ppane[data-pane="main"].active .sigstrip{align-self:auto;width:100%;}
+  .ppane[data-pane="main"].active .correction,.ppane[data-pane="main"].active .attrblock,.ppane[data-pane="main"].active .modblock{align-self:auto;width:100%;}
   .correction{margin-bottom:18px;}
-  .modblock{margin:0 0 18px;padding-top:15px;}
+  .attrblock,.modblock{margin:0 0 18px;padding-top:15px;}
   .c-head{align-items:flex-start;margin-bottom:12px;}
   .ctag{font-size:11px;}
   .cbadges{justify-content:flex-start;}
@@ -454,8 +455,8 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
     <div class="ppanes">
       <div class="ppane active" data-pane="main">
         <div id="correction" class="correction"></div>
-        <div class="modblock" id="modblock"><div class="mh">View contribution to q_agro correction</div><div id="modbars"></div></div>
-        <div class="sigstrip" id="sigstrip"></div>
+        <div class="attrblock" id="attrblock"><div class="mh">Calibration attribution <span class="mh-sub">(t/ha Shapley)</span></div><div id="attrbars"></div></div>
+        <div class="modblock" id="modblock"><div class="mh">Analogue retrieval basis</div><div id="modbars"></div></div>
       </div>
       <div class="ppane" data-pane="why">
         <div class="bh-sub2">longer bar = more similar · d = per-view distance</div>
@@ -498,7 +499,7 @@ async function fetchJson(path){var r=await fetch(path);if(!r.ok)throw new Error(
 async function loadManifest(){DATA_MANIFEST=await fetchJson(DATA_ROOT+"/manifest.json");INDEX_TOTAL=(DATA_MANIFEST.index_shards||[]).length;return DATA_MANIFEST;}
 async function loadFootprints(){if(FOOTPRINTS)return FOOTPRINTS;try{FOOTPRINTS=await fetchJson(DATA_ROOT+"/field_footprints.json");}catch(err){console.warn("field footprints unavailable",err);FOOTPRINTS={};}return FOOTPRINTS;}
 function footprintFor(name){var fp=FOOTPRINTS&&FOOTPRINTS[name];if(!fp)return null;return {ring:fp.ring,bbox:fp.bbox,anchor:fp.anchor||fp.centroid||null,source:fp.source_mask||fp.source||""};}
-function indexToCase(row,i){var cross=row.has_cross_country_neighbor==null?null:Boolean(row.has_cross_country_neighbor);return {id:row.case_id,num:caseNumber(i),stance:String(row.stance||"mixed"),crop:titleCase(row.crop),protocol:String(row.protocol||"").toUpperCase(),sr:Number(row.sample_ratio),k:Number(row.effective_k||3),field:String(row.field_shared_name||row.case_id),shortField:fieldShort(row.country,row.field_shared_name),country:String(row.country||""),helped:helpedFrom(row),evidenceStatus:String(row.evidence_status||(Number(row.effective_k||0)>=3?"topk_exported":"needs_topk_export")),idx:{basePrediction:Number(row.base_prediction),calibrationPrediction:Number(row.calibration_prediction),qagroPrediction:Number(row.qagro_prediction),baseResidual:Number(row.base_residual),calibrationResidual:Number(row.calibration_residual),qagroResidual:Number(row.qagro_residual)},toolDefault:"qagro_full",cross:cross,crossNeighborCount:row.cross_neighbor_count==null?null:Number(row.cross_neighbor_count),localNeighborCount:row.local_neighbor_count==null?null:Number(row.local_neighbor_count),views:VIEWS,query:{name:String(row.field_shared_name||row.case_id),...jitterPoint(row.country,row.case_id),footprint:null},neighbors:[],chips:[],outcome:null,modality:[],signal:{},geoNote:"loading evidence",__shard:row.shard,__offset:row.offset,__loaded:false};}
+function indexToCase(row,i){var cross=row.has_cross_country_neighbor==null?null:Boolean(row.has_cross_country_neighbor);return {id:row.case_id,num:caseNumber(i),stance:String(row.stance||"mixed"),crop:titleCase(row.crop),protocol:String(row.protocol||"").toUpperCase(),sr:Number(row.sample_ratio),k:Number(row.effective_k||3),field:String(row.field_shared_name||row.case_id),shortField:fieldShort(row.country,row.field_shared_name),country:String(row.country||""),helped:helpedFrom(row),evidenceStatus:String(row.evidence_status||(Number(row.effective_k||0)>=3?"topk_exported":"needs_topk_export")),correctionDriverStatus:String(row.correction_driver_status||"needs_correction_driver_export"),idx:{basePrediction:Number(row.base_prediction),calibrationPrediction:Number(row.calibration_prediction),qagroPrediction:Number(row.qagro_prediction),baseResidual:Number(row.base_residual),calibrationResidual:Number(row.calibration_residual),qagroResidual:Number(row.qagro_residual)},toolDefault:"qagro_full",cross:cross,crossNeighborCount:row.cross_neighbor_count==null?null:Number(row.cross_neighbor_count),localNeighborCount:row.local_neighbor_count==null?null:Number(row.local_neighbor_count),views:VIEWS,query:{name:String(row.field_shared_name||row.case_id),...jitterPoint(row.country,row.case_id),footprint:null},neighbors:[],chips:[],outcome:null,modality:[],correctionDriver:[],correctionDriverContext:null,signal:{},geoNote:"loading evidence",__shard:row.shard,__offset:row.offset,__loaded:false};}
 function usefulIndexRow(row){return Number(row.sample_ratio)>0&&Number(row.bank_size)>=3&&Number(row.effective_k)>=3&&Math.abs(Number(row.calibration_prediction)-Number(row.base_prediction))>1e-9&&Math.abs(Number(row.qagro_prediction)-Number(row.calibration_prediction))>1e-9;}
 function appendIndexRows(rows){rows.filter(usefulIndexRow).forEach(function(row){CASES.push(indexToCase(row,CASES.length));});}
 async function loadIndexShard(shard,refresh){var payload=await fetchJson(DATA_ROOT+"/index/"+shard.path);appendIndexRows(payload.cases||[]);INDEX_LOADED++;if(refresh!==false)rebuild();}
@@ -508,7 +509,7 @@ async function loadInitialIndex(){if(INDEX_LOADING)return;INDEX_LOADING=true;awa
 async function ensureFilterCoverage(){return ensureVirtualCoverage();}
 async function ensureAllIndexForStats(){if(INDEX_STATS_LOADING||!DATA_MANIFEST)return;var shards=DATA_MANIFEST.index_shards||[];if(INDEX_LOADED>=shards.length)return;INDEX_STATS_LOADING=true;updateComboStats(filtered());try{await loadMoreIndexWhile(function(){return INDEX_LOADED<shards.length;});}finally{INDEX_STATS_LOADING=false;rebuild({preserveScroll:true});}}
 async function loadCase(i){var c=CASES[i];if(!c||c.__loaded)return c;var key=c.__shard+":"+c.__offset;if(CASE_CACHE.has(key)){CASES[i]=CASE_CACHE.get(key);return CASES[i];}var payload=await fetchJson(DATA_ROOT+"/cases/"+c.__shard);await loadFootprints();var raw=(payload.cases||[])[Number(c.__offset)];if(!raw)throw new Error("case offset not found: "+key);var full=rawToCase(raw,i,c);CASE_CACHE.set(key,full);CASES[i]=full;return full;}
-function rawToCase(raw,i,base){var q=jitterPoint(raw.country,raw.case_id);var qfp=footprintFor(raw.field_shared_name);var neighbors=(raw.neighbors||[]).map(function(n,idx){var p=jitterPoint(n.country||raw.country,raw.case_id+":"+(n.field_shared_name||idx));var delta=Number(n.neighbor_residual_delta||0);return {role:"NN"+(idx+1),name:String(n.field_shared_name||"Neighbour "+(idx+1)),year:n.year?Number(n.year):null,lon:p.lon,lat:p.lat,country:String(n.country||""),geo:String(n.geo_relation||"local"),dir:dirFrom(delta),mag:magFrom(delta),pull:delta,dist:Number(n.fused_distance||0),weight:Number(n.weight||0),residual:{calDelta:Number(n.neighbor_calibration_residual_delta),qagDelta:Number(n.neighbor_qagro_residual_delta),totalDelta:Number(n.neighbor_residual_delta_vs_base),gtDiff:Number(n.neighbor_gt_diff)},views:Object.assign({"S2/GDD":0,"Weather/GDD":0,"Soil":0,"Topo":0},n.view_distances||{}),footprint:footprintFor(n.field_shared_name)};});var qagDelta=Number(raw.qagro_prediction_delta||0);var calDelta=Number(raw.calibration_prediction_delta||0);var helped=helpedFrom(raw);var stance=String(raw.stance||base.stance||"mixed");var modality=modalityFrom(raw,neighbors,qagDelta);var crossCount=neighbors.filter(function(n){return n.geo==="cross-region";}).length;return {id:String(raw.case_id),num:caseNumber(i),stance:stance,crop:titleCase(raw.crop),protocol:String(raw.protocol||"").toUpperCase(),sr:Number(raw.sample_ratio),k:Number(raw.effective_k||raw.k||3),field:String(raw.field_shared_name||raw.case_id),shortField:fieldShort(raw.country,raw.field_shared_name),country:String(raw.country||""),helped:helped,evidenceStatus:String(raw.evidence_status||""),toolDefault:"qagro_full",cross:crossCount>0,crossNeighborCount:crossCount,localNeighborCount:neighbors.length-crossCount,views:VIEWS,query:{lon:q.lon,lat:q.lat,name:String(raw.field_shared_name||raw.case_id),footprint:qfp},neighbors:neighbors,chips:chipsFrom(raw,neighbors),outcome:{base:Number(raw.base_residual),cal:Number(raw.calibration_residual),qag:Number(raw.qagro_residual),helped:helped,baseResidual:Number(raw.base_residual),calResidual:Number(raw.calibration_residual),qagResidual:Number(raw.qagro_residual),calResidualDelta:Number(raw.calibration_residual)-Number(raw.base_residual),qagResidualDelta:Number(raw.qagro_residual)-Number(raw.calibration_residual),qagResidualDeltaVsBase:Number(raw.qagro_residual)-Number(raw.base_residual),calResidualAbsDelta:Number(raw.calibration_abs_error_delta),qagResidualAbsDelta:Number(raw.qagro_abs_error_delta),qagResidualAbsDeltaVsBase:Number(raw.qagro_abs_error_delta_vs_base),targetYield:Number(raw.target_yield),basePrediction:Number(raw.base_prediction),calPrediction:Number(raw.calibration_prediction),qagPrediction:Number(raw.qagro_prediction),calPredictionDelta:calDelta,qagPredictionDelta:qagDelta,qagPredictionDeltaVsBase:Number(raw.qagro_prediction_delta_vs_base)},modality:modality,signal:{calDir:dirFrom(calDelta),rel:relFrom(raw),viewEvidence:stance},geoNote:geoNote(raw,neighbors),__shard:base.__shard,__offset:base.__offset,__loaded:true};}
+function rawToCase(raw,i,base){var q=jitterPoint(raw.country,raw.case_id);var qfp=footprintFor(raw.field_shared_name);var neighbors=(raw.neighbors||[]).map(function(n,idx){var p=jitterPoint(n.country||raw.country,raw.case_id+":"+(n.field_shared_name||idx));var delta=Number(n.neighbor_residual_delta||0);return {role:"NN"+(idx+1),name:String(n.field_shared_name||"Neighbour "+(idx+1)),year:n.year?Number(n.year):null,lon:p.lon,lat:p.lat,country:String(n.country||""),geo:String(n.geo_relation||"local"),dir:dirFrom(delta),mag:magFrom(delta),pull:delta,dist:Number(n.fused_distance||0),weight:Number(n.weight||0),residual:{calDelta:Number(n.neighbor_calibration_residual_delta),qagDelta:Number(n.neighbor_qagro_residual_delta),totalDelta:Number(n.neighbor_residual_delta_vs_base),gtDiff:Number(n.neighbor_gt_diff)},views:Object.assign({"S2/GDD":0,"Weather/GDD":0,"Soil":0,"Topo":0},n.view_distances||{}),footprint:footprintFor(n.field_shared_name)};});var qagDelta=Number(raw.qagro_prediction_delta||0);var calDelta=Number(raw.calibration_prediction_delta||0);var helped=helpedFrom(raw);var stance=String(raw.stance||base.stance||"mixed");var modality=modalityFrom(raw,neighbors,qagDelta);var crossCount=neighbors.filter(function(n){return n.geo==="cross-region";}).length;return {id:String(raw.case_id),num:caseNumber(i),stance:stance,crop:titleCase(raw.crop),protocol:String(raw.protocol||"").toUpperCase(),sr:Number(raw.sample_ratio),k:Number(raw.effective_k||raw.k||3),field:String(raw.field_shared_name||raw.case_id),shortField:fieldShort(raw.country,raw.field_shared_name),country:String(raw.country||""),helped:helped,evidenceStatus:String(raw.evidence_status||""),correctionDriverStatus:String(raw.correction_driver_status||""),toolDefault:"qagro_full",cross:crossCount>0,crossNeighborCount:crossCount,localNeighborCount:neighbors.length-crossCount,views:VIEWS,query:{lon:q.lon,lat:q.lat,name:String(raw.field_shared_name||raw.case_id),footprint:qfp},neighbors:neighbors,chips:chipsFrom(raw,neighbors),outcome:{base:Number(raw.base_residual),cal:Number(raw.calibration_residual),qag:Number(raw.qagro_residual),helped:helped,baseResidual:Number(raw.base_residual),calResidual:Number(raw.calibration_residual),qagResidual:Number(raw.qagro_residual),calResidualDelta:Number(raw.calibration_residual)-Number(raw.base_residual),qagResidualDelta:Number(raw.qagro_residual)-Number(raw.calibration_residual),qagResidualDeltaVsBase:Number(raw.qagro_residual)-Number(raw.base_residual),calResidualAbsDelta:Number(raw.calibration_abs_error_delta),qagResidualAbsDelta:Number(raw.qagro_abs_error_delta),qagResidualAbsDeltaVsBase:Number(raw.qagro_abs_error_delta_vs_base),targetYield:Number(raw.target_yield),basePrediction:Number(raw.base_prediction),calPrediction:Number(raw.calibration_prediction),qagPrediction:Number(raw.qagro_prediction),calPredictionDelta:calDelta,qagPredictionDelta:qagDelta,qagPredictionDeltaVsBase:Number(raw.qagro_prediction_delta_vs_base)},modality:modality,correctionDriver:raw.correction_driver||[],correctionDriverContext:raw.correction_driver_context||null,signal:{calDir:dirFrom(calDelta),rel:relFrom(raw),viewEvidence:stance},geoNote:geoNote(raw,neighbors),__shard:base.__shard,__offset:base.__offset,__loaded:true};}
 function modalityFrom(raw,neighbors,qagDelta){if(raw.modality&&raw.modality.length&&raw.modality[0].dir)return raw.modality;var share={};
   if(raw.modality&&raw.modality.length&&raw.modality[0].nearest_mean_distance!=null){
     raw.modality.forEach(function(m){share[m.view]=1/Math.max(1e-6,Number(m.nearest_mean_distance||0));});
@@ -518,7 +519,7 @@ function modalityFrom(raw,neighbors,qagDelta){if(raw.modality&&raw.modality.leng
   if(!Object.keys(share).length){VIEWS.forEach(function(v){share[v]=1;});}var total=Object.values(share).reduce(function(a,b){return a+b;},0)||1;var maxShare=Math.max(...Object.values(share),1e-9);return VIEWS.map(function(v){var frac=(share[v]||0)/total;var norm=100*(share[v]||0)/maxShare;var value=Number(qagDelta||0)*frac;var w=Math.max(20,Math.min(96,norm));return {view:v,dir:dirFrom(qagDelta),mag:viewMagFromWidth(w),w:w,value:value,norm:norm,proxy:!neighbors.length};});}
 function chipsFrom(raw,neighbors){var weighted=neighbors.reduce(function(a,n){return a+n.weight*(n.dir==="negative"?-1:(n.dir==="positive"?1:0));},0);return [{k:"calibration shift",v:dirFrom(raw.calibration_prediction_delta)+" / "+magFrom(raw.calibration_prediction_delta),tone:"neutral"},{k:"q_agro correction",v:dirFrom(raw.qagro_prediction_delta)+" / "+magFrom(raw.qagro_prediction_delta),tone:"neutral"},{k:"q_agro vs calibration",v:(raw.qagro_vs_calibration==="opposite"?"opposite direction":"same direction"),tone:raw.qagro_vs_calibration==="opposite"?"warn":"good"},{k:"evidence status",v:String(raw.evidence_status||"unknown"),tone:raw.evidence_status==="topk_exported"?"good":"neutral"},{k:"neighbour direction",v:neighbors.length?dirFrom(weighted)+" (weighted)":"not exported",tone:"neutral"},{k:"modality agreement",v:String(raw.stance||"mixed"),tone:raw.stance==="conflict"?"warn":"good"}];}
 function geoNote(raw,neighbors){if(!neighbors.length)return "query placeholder · "+String(raw.evidence_status||"needs_topk_export");var cross=neighbors.filter(function(n){return n.geo==="cross-region";}).length;if(cross===0)return "all analogues local";if(cross===neighbors.length)return "all analogues cross-region";return cross+" cross-region analogue"+(cross>1?"s":"");}
-function renderLoading(i,c){active=i;setCur(i);markSel(i);document.getElementById("field").innerHTML=fieldTitle(c);document.getElementById("field").title=c.field;document.getElementById("correction").innerHTML='<div class="bh-sub2">Loading case evidence...</div>';document.getElementById("modblock").style.display="none";document.getElementById("decomp").innerHTML="";document.getElementById("fused").innerHTML="";document.getElementById("nbt").innerHTML="";document.getElementById("chips").innerHTML="";}
+function renderLoading(i,c){active=i;setCur(i);markSel(i);document.getElementById("field").innerHTML=fieldTitle(c);document.getElementById("field").title=c.field;document.getElementById("correction").innerHTML='<div class="bh-sub2">Loading case evidence...</div>';document.getElementById("attrblock").style.display="none";document.getElementById("modblock").style.display="none";document.getElementById("decomp").innerHTML="";document.getElementById("fused").innerHTML="";document.getElementById("nbt").innerHTML="";document.getElementById("chips").innerHTML="";}
 function initData(){document.getElementById("cboxCur").textContent="Loading q_agro cases...";loadInitialIndex().catch(function(err){console.error(err);document.getElementById("cboxCur").textContent="Failed to load data";document.getElementById("count").textContent=err.message;});}
 function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
 function nnLabel(role){return String(role).replace(/^NN/,"Top-");}
@@ -723,27 +724,20 @@ function nbt(c){var box=document.getElementById("nbt");
     el.addEventListener("mouseover",function(){hot(el.dataset.nn,true);});
     el.addEventListener("mouseout",function(){hot(el.dataset.nn,false);});
     el.addEventListener("click",function(){focusNeighbour(el.dataset.nn);});});}
-function sigstrip(c){var s=c.signal||{},o=c.outcome;
-  var calP=s.calDir==="positive"?"raises yield":(s.calDir==="negative"?"lowers yield":"—");
-  var relP=s.rel==="opposite_direction"?"opposite":(s.rel==="same_direction"?"same":"—");
-  var calStyle=s.calDir==="positive"||s.calDir==="negative"?' style="color:'+dc(s.calDir)+'"':"";
-  var relT=s.rel==="opposite_direction"?"warn":(s.rel==="same_direction"?"good":"neutral");
-  var viewT=s.viewEvidence==="consensus"?"good":"neutral";
-  var dlp=function(v){if(v==null)return '<span class="sig-v">n/a</span>';var d=v<0?"negative":"positive";return '<span class="sig-v" style="color:'+dc(d)+'">'+(v<0?"−":"+")+Math.abs(v).toFixed(2)+'</span>';};
-  var calDelta=o&&o.calPredictionDelta!=null?o.calPredictionDelta:null;
-  var qagDelta=o&&o.qagPredictionDelta!=null?o.qagPredictionDelta:null;
-  var post=o?('<div class="sig-row"><span class="sig-k">Δ Calibration</span>'+dlp(calDelta)+'</div>'+
-              '<div class="sig-row"><span class="sig-k">Δ q_agro</span>'+dlp(qagDelta)+'</div>'):
-             '<div class="sig-row"><span class="sig-k">outcome</span><span class="sig-v">withheld</span></div>';
-  document.getElementById("sigstrip").innerHTML=
-    '<div class="sig">'+
-      '<div class="sig-z"><div class="sig-h"><span class="sig-i">◇</span>Pre-deploy signal</div>'+
-        '<div class="sig-row"><span class="sig-k">Calibration Δ</span><span class="sig-v"'+calStyle+' title="options: raises yield / lowers yield">'+calP+'</span></div>'+
-        '<div class="sig-row"><span class="sig-k">q_agro vs cal.</span><span class="sig-v '+relT+'" title="options: same / opposite">'+relP+'</span></div>'+
-        '<div class="sig-row"><span class="sig-k">View agreement</span><span class="sig-v '+viewT+'" title="options: consensus / conflict">'+esc(s.viewEvidence||"—")+'</span></div>'+
-      '</div>'+
-      '<div class="sig-z"><div class="sig-h"><span class="sig-i">◷</span>Post-hoc prediction Δ <span class="unit-lower">(t/ha)</span></div>'+post+'</div>'+
-    '</div>';}
+function signedFixed(v,digits){v=Number(v)||0;return (v<0?"−":"+")+Math.abs(v).toFixed(digits==null?2:digits);}
+function renderCorrectionDriver(c){
+  var box=document.getElementById("attrblock"),bars=document.getElementById("attrbars"),rows=c.correctionDriver||[];
+  if(!rows.length){box.style.display="none";bars.innerHTML="";return;}
+  var order={"S2":0,"Weather":1,"Soil":2,"Terrain":3,"Topo":3};
+  rows=rows.slice().sort(function(a,b){return (order[a.view]??9)-(order[b.view]??9);});
+  var maxAbs=Math.max.apply(null,rows.map(function(r){return Math.abs(Number(r.shapley_correction)||0);}))||1;
+  bars.innerHTML=rows.map(function(r){
+    var v=Number(r.shapley_correction)||0,dir=dirFrom(v),w=Math.max(3,Math.min(50,50*Math.abs(v)/maxAbs));
+    var fill='<div class="mod-fill" style="width:'+w.toFixed(0)+'%;'+(v>=0?"left:50%":"right:50%")+';background:'+dc(dir)+'"></div>';
+    return '<div class="mod-row" title="Shapley correction '+signedFixed(v,3)+' t/ha · standalone '+signedFixed(Number(r.standalone_correction)||0,3)+' t/ha"><div class="mod-name">'+vTag(r.view||r.modality)+'</div><div class="mod-track"><div class="mod-axis"></div>'+fill+'</div><div class="mod-val" style="color:'+dc(dir)+'">'+signedFixed(v,2)+'</div></div>';
+  }).join("");
+  box.style.display="";
+}
 function caseTitle(c){return c.crop+" · "+c.shortField;}
 function stanceTag(s){return '<span class="cbox-st st-'+s+'"><span class="d"></span>'+s+'</span>';}
 function pill(txt,tone){return '<span class="case-pill '+tone+'">'+esc(txt)+'</span>';}
@@ -796,7 +790,7 @@ function render(i){active=i;var c=CASES[i];
   setCur(i);markSel(i);
   document.getElementById("field").innerHTML=fieldTitle(c);
   document.getElementById("field").title=c.field;
-  sigstrip(c);
+  renderCorrectionDriver(c);
   draw(c);decomp(c);nbt(c);
   document.getElementById("chips").innerHTML='<div class="chips">'+c.chips.map(function(ch){return '<div class="chip chip-'+ch.tone+'"><span class="ck">'+esc(ch.k)+'</span><span class="cv">'+esc(ch.v)+'</span></div>';}).join("")+'</div>';
   var o=c.outcome;
