@@ -304,6 +304,78 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
 .outcome-good .onum.to{color:#0c7a4b;} .outcome-warn .onum.to{color:#b3530a;}
 .olab{font-size:11.5px;color:var(--slate);margin-top:11px;line-height:1.5;} .olab b{color:var(--ink);}
 .foot{margin-top:54px;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--mut);line-height:1.8;text-align:center;font-weight:500;}
+@media(max-width:640px){
+  .wrap{padding:18px 12px 48px;}
+  .selector{margin:14px 0 14px;gap:10px;}
+  .picker{gap:6px;}
+  .nav{width:32px;height:32px;border-radius:8px;}
+  .cbox-btn{padding:8px 10px 8px 8px;}
+  .casepick{grid-template-columns:auto minmax(0,1fr);gap:8px;}
+  .case-meta{grid-column:2;justify-content:flex-start;max-width:none;margin-top:5px;}
+  .case-sub{font-size:10px;}
+  .combo-stats{margin:-3px 0 0;font-size:11px;}
+  .filters{display:flex;flex-direction:column;gap:9px;}
+  .fgroup{display:grid;grid-template-rows:auto auto;grid-auto-flow:column;grid-auto-columns:max-content;gap:5px 7px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none;mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 28px),transparent);}
+  .fgroup::-webkit-scrollbar{display:none;}
+  .fl{grid-row:1;grid-column:1/-1;margin:0;}
+  .chipf{grid-row:2;white-space:nowrap;padding:5px 12px;}
+  .stage{gap:18px;}
+  #map{height:58vh;height:58dvh;min-height:360px;max-height:460px;}
+  .mapwrap{border-radius:14px;}
+  .bmtoggle{left:10px;bottom:10px;}
+  .fitbtn{right:10px;top:10px;width:38px;height:38px;border-radius:11px;}
+  .side-head{padding-bottom:12px;}
+  .side-head h2{font-size:21px;gap:6px;}
+  .ptabs{position:sticky;top:0;z-index:35;margin-top:0;overflow-x:auto;gap:12px;background:rgba(245,242,234,.98);box-shadow:0 1px 0 var(--line),0 10px 18px -18px rgba(26,34,48,.55);scrollbar-width:none;}
+  .ptabs::-webkit-scrollbar{display:none;}
+  .ptab{flex:none;font-size:12.5px;padding:10px 1px;}
+  .ppanes{display:block;padding-top:14px;min-height:0;}
+  .ppane.active{width:100%;}
+  .ppane[data-pane="main"].active{display:block;height:auto;}
+  .ppane[data-pane="main"].active .correction,.ppane[data-pane="main"].active .modblock,.ppane[data-pane="main"].active .sigstrip{align-self:auto;width:100%;}
+  .correction{margin-bottom:18px;}
+  .modblock{margin:0 0 18px;padding-top:15px;}
+  .c-head{align-items:flex-start;margin-bottom:12px;}
+  .ctag{font-size:11px;}
+  .cbadges{justify-content:flex-start;}
+  .cprog{grid-template-columns:1fr;gap:5px;text-align:left;overflow:visible;}
+  .cstep{align-items:flex-start;padding:7px 0;}
+  .cn{font-size:26px;}
+  .cl{font-size:9.5px;}
+  .ca{margin:0;align-items:flex-start;color:transparent;font-size:0;gap:2px;}
+  .ca::after{content:"↓";font-family:var(--serif);font-size:17px;line-height:1;color:#cabfa6;margin-left:9px;}
+  .ca.gt-compare::after{color:#D55E00;}
+  .ca-d{font-size:10px;}
+  .mod-row{grid-template-columns:76px 1fr 58px;gap:8px;}
+  .mod-name{font-size:11.5px;}
+  .mod-val{font-size:11.5px;}
+  .sig{grid-template-columns:1fr;}
+  .ppane[data-pane="nbr"].active{height:auto;overflow:visible;padding-right:0;}
+  .ncard{padding:10px 10px 11px 13px;}
+  .nc-head{gap:6px;align-items:center;}
+  .nc-id{font-size:12px;}
+  .nc-w-bar{width:30px;}
+  .nc-sub{flex-wrap:wrap;gap:6px;margin:6px 0 7px;}
+  .nc-pull{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .nc-stats{grid-template-columns:1fr;gap:6px;margin:7px 0 8px;}
+  .nv{grid-template-columns:58px 1fr 30px;gap:7px;}
+  .nv-name{font-size:10.3px;}
+  .dv-row{grid-template-columns:72px 1fr;gap:7px;}
+  .dv-val{width:58px;font-size:9px;}
+  .chips{grid-template-columns:1fr;}
+  .lpop,.leaflet-popup-content{max-width:min(86vw,320px);overflow-wrap:anywhere;}
+  .lpopt{gap:4px 9px;}
+}
+@media(max-width:380px){
+  .wrap{padding-left:10px;padding-right:10px;}
+  #map{min-height:340px;}
+  .side-head h2{font-size:19px;}
+  .ptabs{gap:10px;}
+  .ptab{font-size:12px;}
+  .cn{font-size:24px;}
+  .mod-row{grid-template-columns:70px 1fr 54px;}
+  .nv{grid-template-columns:54px 1fr 28px;gap:6px;}
+}
 </style></head>
 <body><div class="wrap">
 <div class="selector">
@@ -450,6 +522,11 @@ var satRef=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Ref
 var street=L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:19,attribution:'© OpenStreetMap © CARTO'});
 var bmmode="sat",linkColor="#eef3f7",hiColor="#ffd23f",casingColor="rgba(8,14,22,.5)";
 var layer=L.layerGroup().addTo(map),markers={},shapes={},active=0,filt={crop:"all",stance:"all",sr:"all",country:"all"};
+var mapResizeTimer=null;
+function queueMapResize(){clearTimeout(mapResizeTimer);mapResizeTimer=setTimeout(function(){map.invalidateSize();},160);}
+window.addEventListener("resize",queueMapResize);
+window.addEventListener("orientationchange",queueMapResize);
+if(window.visualViewport){window.visualViewport.addEventListener("resize",queueMapResize);}
 function setBase(m){[satImg,satRef,street].forEach(function(l){map.removeLayer(l);});
   if(m==="street"){street.addTo(map);linkColor="#2b3442";hiColor="#1a2230";casingColor="rgba(255,255,255,.92)";document.body.classList.add("street");}
   else{satImg.addTo(map);satRef.addTo(map);linkColor="#eef3f7";hiColor="#ffd23f";casingColor="rgba(8,14,22,.5)";document.body.classList.remove("street");}
