@@ -490,7 +490,7 @@ function jitterPoint(country,key){var c=COUNTRY_CENTER[country]||[0,0],a=stableN
 function fieldShort(country,name){var m=String(name||"").match(/field\d+/i);return country+" · "+(m?m[0]:String(name||"").split("_").slice(-3).join("_"));}
 function dirFrom(v){v=Number(v);return v>1e-9?"positive":(v<-1e-9?"negative":"zero");}
 function magFrom(v){var a=Math.abs(Number(v)||0);if(a<.05)return "zero";if(a<.25)return "small";if(a<.75)return "moderate";if(a<1.5)return "large";return "very large";}
-function viewMagFromWidth(w){w=Number(w)||0;if(w>=60)return "large";if(w>=36)return "medium";return "small";}
+function viewMagFromWidth(w){w=Number(w)||0;if(w>=75)return "large";if(w>=50)return "medium";if(w>=25)return "small";return "tiny";}
 function relFrom(c){return c.qagro_vs_calibration==="opposite"?"opposite_direction":"same_direction";}
 function helpedFrom(row){var base=Math.abs(Number(row.base_residual)),qag=Math.abs(Number(row.qagro_residual));return Number.isFinite(base)&&Number.isFinite(qag)?qag<=base:Boolean(row.helped);}
 function caseNumber(i){return String(i+1).padStart(2,"0");}
