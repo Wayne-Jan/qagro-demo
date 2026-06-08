@@ -148,8 +148,6 @@ border-radius:11px;padding:10px 12px;font-size:11px;color:var(--slate);backdrop-
 .maplegend .ln{width:18px;height:0;border-top:3px solid #cbd2da;}
 body.street #map,body.street .mapwrap,body.street .leaflet-container{background:#e6e9ed;}
 body.street .maplegend .ln{border-top-color:#2b3442;}
-.geobadge{position:absolute;right:14px;top:14px;z-index:500;background:rgba(26,34,48,.82);color:#fff;font-size:10.5px;
-font-weight:600;letter-spacing:.4px;padding:7px 12px;border-radius:999px;backdrop-filter:blur(3px);}
 .bmtoggle{position:absolute;left:14px;bottom:14px;z-index:500;display:flex;background:rgba(251,250,246,.95);
 border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px;backdrop-filter:blur(4px);box-shadow:0 4px 12px -4px rgba(0,0,0,.3);}
 .bmtoggle button{border:none;background:none;font-family:var(--sans);font-size:11px;font-weight:600;color:var(--mut);
@@ -277,11 +275,13 @@ white-space:nowrap;border:1px solid rgba(255,255,255,.18);}
 .vmt{height:7px;background:#ece8dd;border-radius:999px;overflow:hidden;}
 .vmf{height:100%;border-radius:999px;background:var(--indigo);}
 .vmv{font-size:9.5px;font-weight:700;color:var(--mut);text-align:right;font-variant-numeric:tabular-nums;}
-.fitbtn{position:absolute;right:14px;bottom:14px;z-index:70;width:36px;height:36px;border:1px solid rgba(255,255,255,.82);border-radius:9px;background:rgba(26,34,48,.82);color:#fff;display:grid;place-items:center;box-shadow:0 12px 24px -18px rgba(0,0,0,.55);cursor:pointer;}
-.fitbtn:hover{background:rgba(26,34,48,.96);}
-.fitbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-body.street .fitbtn{background:rgba(255,255,255,.94);color:var(--ink);border-color:var(--line);}
-body.street .fitbtn:hover{background:#fff;}
+.fitbtn{position:absolute;right:14px;top:14px;z-index:560;width:40px;height:40px;border:1px solid rgba(255,255,255,.58);border-radius:12px;background:linear-gradient(180deg,rgba(32,43,58,.88),rgba(15,21,31,.78));color:#fff;display:grid;place-items:center;box-shadow:0 18px 34px -20px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.25);backdrop-filter:blur(8px) saturate(1.2);cursor:pointer;transition:transform .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease;}
+.fitbtn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.86);background:linear-gradient(180deg,rgba(43,56,74,.94),rgba(18,25,37,.86));box-shadow:0 22px 42px -22px rgba(0,0,0,.78),inset 0 1px 0 rgba(255,255,255,.32);}
+.fitbtn:active{transform:translateY(0);box-shadow:0 12px 25px -18px rgba(0,0,0,.72),inset 0 1px 2px rgba(0,0,0,.2);}
+.fitbtn:focus-visible{outline:2px solid #ffd23f;outline-offset:3px;}
+.fitbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.15;stroke-linecap:round;stroke-linejoin:round;}
+body.street .fitbtn{background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(241,244,247,.9));color:var(--ink);border-color:rgba(26,34,48,.16);box-shadow:0 16px 34px -22px rgba(26,34,48,.55),inset 0 1px 0 rgba(255,255,255,.9);}
+body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-shadow:0 20px 40px -24px rgba(26,34,48,.62),inset 0 1px 0 rgba(255,255,255,.94);}
 .chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-bottom:14px;}
 .chip{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px 11px;}
 .ck{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);font-weight:600;margin-bottom:2px;}
@@ -320,7 +320,6 @@ body.street .fitbtn:hover{background:#fff;}
     <div id="map"></div>
     <div class="bmtoggle" id="bmtoggle"><button data-bm="sat" class="on">satellite</button><button data-bm="street">street</button></div>
     <button class="fitbtn" id="fitMap" type="button" title="Fit all visible locations" aria-label="Fit all visible locations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"/><path d="M3 3l6 6M21 3l-6 6M21 21l-6-6M3 21l6-6"/></svg></button>
-    <div class="geobadge" id="geobadge"></div>
   </div>
   <aside class="side">
     <div class="side-head">
@@ -395,7 +394,7 @@ function modalityFrom(raw,neighbors,qagDelta){if(raw.modality&&raw.modality.leng
   if(!Object.keys(share).length){VIEWS.forEach(function(v){share[v]=1;});}var total=Object.values(share).reduce(function(a,b){return a+b;},0)||1;var maxShare=Math.max(...Object.values(share),1);return VIEWS.map(function(v){var frac=(share[v]||0)/total;var norm=100*(share[v]||0)/maxShare;var value=Number(qagDelta||0)*frac;var w=Math.max(20,Math.min(96,norm));return {view:v,dir:dirFrom(qagDelta),mag:viewMagFromWidth(w),w:w,value:value,norm:norm,proxy:!neighbors.length};});}
 function chipsFrom(raw,neighbors){var weighted=neighbors.reduce(function(a,n){return a+n.weight*(n.dir==="negative"?-1:(n.dir==="positive"?1:0));},0);return [{k:"calibration shift",v:dirFrom(raw.calibration_prediction_delta)+" / "+magFrom(raw.calibration_prediction_delta),tone:"neutral"},{k:"q_agro correction",v:dirFrom(raw.qagro_prediction_delta)+" / "+magFrom(raw.qagro_prediction_delta),tone:"neutral"},{k:"q_agro vs calibration",v:(raw.qagro_vs_calibration==="opposite"?"opposite direction":"same direction"),tone:raw.qagro_vs_calibration==="opposite"?"warn":"good"},{k:"evidence status",v:String(raw.evidence_status||"unknown"),tone:raw.evidence_status==="topk_exported"?"good":"neutral"},{k:"neighbour direction",v:neighbors.length?dirFrom(weighted)+" (weighted)":"not exported",tone:"neutral"},{k:"modality agreement",v:String(raw.stance||"mixed"),tone:raw.stance==="conflict"?"warn":"good"}];}
 function geoNote(raw,neighbors){if(!neighbors.length)return "query placeholder · "+String(raw.evidence_status||"needs_topk_export");var cross=neighbors.filter(function(n){return n.geo==="cross-region";}).length;if(cross===0)return "all analogues local";if(cross===neighbors.length)return "all analogues cross-region";return cross+" cross-region analogue"+(cross>1?"s":"");}
-function renderLoading(i,c){active=i;setCur(i);markSel(i);document.getElementById("field").innerHTML=fieldTitle(c);document.getElementById("field").title=c.field;document.getElementById("geobadge").textContent="loading case shard";document.getElementById("correction").innerHTML='<div class="bh-sub2">Loading case evidence...</div>';document.getElementById("modblock").style.display="none";document.getElementById("decomp").innerHTML="";document.getElementById("fused").innerHTML="";document.getElementById("nbt").innerHTML="";document.getElementById("chips").innerHTML="";}
+function renderLoading(i,c){active=i;setCur(i);markSel(i);document.getElementById("field").innerHTML=fieldTitle(c);document.getElementById("field").title=c.field;document.getElementById("correction").innerHTML='<div class="bh-sub2">Loading case evidence...</div>';document.getElementById("modblock").style.display="none";document.getElementById("decomp").innerHTML="";document.getElementById("fused").innerHTML="";document.getElementById("nbt").innerHTML="";document.getElementById("chips").innerHTML="";}
 function initData(){document.getElementById("cboxCur").textContent="Loading q_agro cases...";loadInitialIndex().catch(function(err){console.error(err);document.getElementById("cboxCur").textContent="Failed to load data";document.getElementById("count").textContent=err.message;});}
 function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
 function nnLabel(role){return String(role).replace(/^NN/,"Top-");}
@@ -581,12 +580,11 @@ function fieldTitle(c){var p=c.shortField.split(" · ");var fn=p[p.length-1];
     fieldIcon()+'<span class="hf fieldtext">'+esc(fn)+'</span>';}
 function render(i){active=i;var c=CASES[i];
   if(!c)return;
-  if(!c.__loaded){renderLoading(i,c);loadCase(i).then(function(){render(i);}).catch(function(err){console.error(err);document.getElementById("geobadge").textContent="case load failed";});return;}
+  if(!c.__loaded){renderLoading(i,c);loadCase(i).then(function(){render(i);}).catch(function(err){console.error(err);});return;}
   setCur(i);markSel(i);
   document.getElementById("field").innerHTML=fieldTitle(c);
   document.getElementById("field").title=c.field;
   sigstrip(c);
-  document.getElementById("geobadge").textContent=c.geoNote;
   draw(c);decomp(c);nbt(c);
   document.getElementById("chips").innerHTML='<div class="chips">'+c.chips.map(function(ch){return '<div class="chip chip-'+ch.tone+'"><span class="ck">'+esc(ch.k)+'</span><span class="cv">'+esc(ch.v)+'</span></div>';}).join("")+'</div>';
   var o=c.outcome;
