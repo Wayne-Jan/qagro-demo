@@ -136,10 +136,8 @@ transform:translateY(-6px);pointer-events:none;transition:opacity .2s ease,trans
 .mapwrap{position:relative;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(26,34,48,.45);background:#1c2530;}
 #map{height:620px;width:100%;background:#1c2530;z-index:1;}
 .leaflet-container{font-family:var(--sans);background:#1c2530;}
-.flowline{stroke-dasharray:2 8;animation:flow 1.15s linear infinite;}
-.flowline.xr{stroke-dasharray:2 11;animation-duration:1.5s;}
-@keyframes flow{to{stroke-dashoffset:-20;}}
-@media (prefers-reduced-motion:reduce){.flowline{animation:none;stroke-dasharray:3 7;}}
+.flowline{stroke-dasharray:3 7;}
+.flowline.xr{stroke-dasharray:3 9;}
 .maplegend{position:absolute;left:14px;bottom:14px;z-index:500;background:rgba(251,250,246,.95);border:1px solid var(--line);
 border-radius:11px;padding:10px 12px;font-size:11px;color:var(--slate);backdrop-filter:blur(4px);line-height:1.8;}
 .maplegend .lg{display:flex;align-items:center;gap:7px;}
@@ -425,13 +423,14 @@ function outcomePopup(c,role){
 function neighborPopup(c,nb,role){
   var r=nb.residual||{};
   var calPred=-Number(r.calDelta||0),qagPred=-Number(r.qagDelta||0),totalPred=-Number(r.totalDelta||0);
+  var gtPredDiff=Number.isFinite(Number(r.totalDelta))&&c.outcome?-(Number(c.outcome.baseResidual)+Number(r.totalDelta)):NaN;
   var pf=function(v){return (v<0?"−":"+")+Math.abs(v).toFixed(3);};
   var fshort=(fieldShort(nb.country,nb.name).split(" · ").pop()||nb.name);
   return '<div class="lpop"><b>'+esc(role||nnLabel(nb.role)+" analogue")+'</b><br>'+esc(nb.country||"unknown")+' · '+esc(fshort)+'<div class="ld">'+
     '<span class="lk">Δ Calibration</span><span class="lv" style="color:'+dc(dirFrom(calPred))+'">'+pf(calPred)+'</span>'+
     '<span class="lk">Δ q_agro</span><span class="lv" style="color:'+dc(dirFrom(qagPred))+'">'+pf(qagPred)+'</span>'+
     '<span class="lk">Δ total</span><span class="lv" style="color:'+dc(dirFrom(totalPred))+'">'+pf(totalPred)+'</span>'+
-    '<span class="lk">GT diff</span><span class="lv" style="color:#D55E00">'+(Number.isFinite(r.gtDiff)?r.gtDiff.toFixed(2):"n/a")+'</span>'+
+    '<span class="lk">GT diff</span><span class="lv" style="color:#D55E00">'+(Number.isFinite(gtPredDiff)?pf(gtPredDiff):"n/a")+'</span>'+
     '</div></div>';
 }
 var map=L.map("map",{zoomControl:true,scrollWheelZoom:true});
