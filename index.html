@@ -26,9 +26,11 @@ background-image:radial-gradient(circle at 1px 1px,rgba(26,34,48,.035) 1px,trans
 .cstep.qag.good .cn,.cstep.qag.good .cl{color:#0c7a4b;}
 .cstep.qag.warn .cn,.cstep.qag.warn .cl{color:#b3530a;}
 .cstep.gt .cn,.cstep.gt .cl{color:#0072CE;}
+.cbadges{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap;}
 .cbadge{align-self:center;display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;padding:5px 10px 5px 8px;border-radius:999px;border:1px solid;line-height:1;white-space:nowrap;cursor:help;box-shadow:0 1px 2px rgba(40,30,10,.05);}
 .cbadge.good{color:#0c7a4b;background:#eaf4ee;border-color:#c2e0cf;}
 .cbadge.warn{color:#b3530a;background:#fbeede;border-color:#f0d3ad;}
+.cbadge.blue{color:#175e99;background:#eaf4fb;border-color:#bddcf1;}
 .cbi{width:13px;height:13px;flex:none;}
 .ca{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:var(--serif);font-size:17px;color:#cabfa6;font-weight:400;margin-top:-5px;position:relative;cursor:help;line-height:1;min-width:0;}
 .ca-d{font-family:var(--num);font-size:9.5px;font-weight:800;letter-spacing:.1px;font-variant-numeric:tabular-nums;line-height:1;color:var(--slate);white-space:nowrap;padding:2px 4px;border-radius:999px;background:#f2eee6;border:1px solid #e5decf;}
@@ -609,7 +611,7 @@ function render(i){active=i;var c=CASES[i];
   var predAlignedResidual=function(v){return fp(-v)+" t/ha";};
   var ico=o.helped?'<path fill="currentColor" d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 1 6.59 7.59C6.22 7.95 6 8.45 6 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>':'<path fill="currentColor" d="M22 3h-4v12h4V3zM2 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L10.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V4c0-1.1-.9-2-2-2H7c-.83 0-1.54.5-1.84 1.22L2.14 10.27C2.05 10.5 2 10.74 2 11v3z"/>';
   var predReady=o&&o.basePrediction!=null&&o.calPrediction!=null&&o.qagPrediction!=null;
-  var head=function(label){return '<div class="c-head"><div class="ctag">'+label+'</div><span class="cbadge '+(o.helped?"good":"warn")+'" title="'+(o.helped?"q_agro lowered absolute residual vs base":"q_agro raised absolute residual vs base")+'"><svg class="cbi" viewBox="0 0 24 24" aria-hidden="true">'+ico+'</svg>'+(o.helped?"helped":"harmed")+'</span></div>';};
+  var head=function(label){return '<div class="c-head"><div class="ctag">'+label+'</div><div class="cbadges"><span class="cbadge '+(o.helped?"good":"warn")+'" title="'+(o.helped?"q_agro lowered absolute residual vs base":"q_agro raised absolute residual vs base")+'"><svg class="cbi" viewBox="0 0 24 24" aria-hidden="true">'+ico+'</svg>'+(o.helped?"helped":"harmed")+'</span>'+(calWins(c)?'<span class="cbadge blue" title="Calibration-only is closer to GT than q_agro.">Cal wins</span>':'')+'</div></div>';};
   document.getElementById("correction").innerHTML=o?(predReady?(head('Predicted yield (t/ha)')+'<div class="cprog">'+
     '<div class="cstep base"><span class="cn">'+fy(o.basePrediction)+'</span><span class="cl">base</span></div><span class="ca" title="Δ Prediction '+fp(o.calPredictionDelta)+' t/ha · Δ residual, prediction sign '+predAlignedResidual(o.calResidualDelta)+'"><span class="ca-d '+dtone(o.calPredictionDelta)+'">'+fp(o.calPredictionDelta)+'</span>&rarr;</span>'+
     '<div class="cstep cal"><span class="cn">'+fy(o.calPrediction)+'</span><span class="cl">calibration</span></div><span class="ca" title="Δ Prediction '+fp(o.qagPredictionDelta)+' t/ha · Δ residual, prediction sign '+predAlignedResidual(o.qagResidualDelta)+'"><span class="ca-d '+dtone(o.qagPredictionDelta)+'">'+fp(o.qagPredictionDelta)+'</span>&rarr;</span>'+
