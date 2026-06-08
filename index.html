@@ -244,7 +244,7 @@ white-space:nowrap;border:1px solid rgba(255,255,255,.18);}
 .nc-geo{flex:none;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:8.5px;color:#0c7a4b;background:#eefaf3;border:1px solid #bfe9d2;border-radius:999px;padding:2px 7px;line-height:1.25;}
 .nc-geo.xr{color:#b3530a;background:#fef6ea;border-color:#f6dcae;background-image:repeating-linear-gradient(45deg,rgba(179,83,10,.13) 0 4px,transparent 4px 8px);}
 .nc-pull{color:var(--mut);}
-.nc-stats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:8px 0 9px;}
+.nc-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 9px;}
 .nc-stat{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:6px 9px;}
 .nc-k{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);font-weight:700;margin-bottom:2px;}
 .nc-v{font-family:var(--num);font-size:13.5px;font-weight:800;color:var(--slate);font-variant-numeric:tabular-nums;line-height:1.1;}
@@ -424,12 +424,14 @@ function outcomePopup(c,role){
 }
 function neighborPopup(c,nb,role){
   var pull=Number(nb.pull)||0,weight=Number(nb.weight)||0,contrib=weight*pull;
+  var gtDiff=c.outcome?Math.abs(Number(c.outcome.calResidual)-contrib):NaN;
   var color=dc(dirFrom(contrib));
   var fshort=(fieldShort(nb.country,nb.name).split(" · ").pop()||nb.name);
   return '<div class="lpop"><b>'+esc(role||nnLabel(nb.role)+" analogue")+'</b><br>'+esc(nb.country||"unknown")+' · '+esc(fshort)+'<div class="ld">'+
     '<span class="lk">Analogue anomaly</span><span class="lv" style="color:'+dc(nb.dir)+'">'+fd(pull)+'</span>'+
     '<span class="lk">Retrieval weight</span><span class="lv">'+Math.round(weight*100)+'%</span>'+
     '<span class="lk">q_agro contribution</span><span class="lv" style="color:'+color+'">'+fd(contrib)+'</span>'+
+    '<span class="lk">GT diff</span><span class="lv">'+(Number.isFinite(gtDiff)?gtDiff.toFixed(2):"n/a")+'</span>'+
     '<span class="lk">Fused distance</span><span class="lv">'+(Number(nb.dist)||0).toFixed(2)+'</span>'+
     '</div></div>';
 }
@@ -521,6 +523,8 @@ function nbt(c){var box=document.getElementById("nbt");
     var fshort=(fieldShort(nb.country,nb.name).split(" · ").pop()||nb.name);
     var cr=nb.geo==="cross-region";
     var pull=Number(nb.pull)||0;
+    var contrib=nb.weight*pull;
+    var gtDiff=c.outcome?Math.abs(Number(c.outcome.calResidual)-contrib):NaN;
     var pullTxt=(pull<0?"−":"+")+Math.abs(pull).toFixed(2);
     var vrows=c.views.map(function(v){var d=Number(nb.views[v])||0;
       var score=Math.max(3,Math.min(100,100*(1-d/(vmax[v]*1.08))));
@@ -532,7 +536,8 @@ function nbt(c){var box=document.getElementById("nbt");
         '<span class="nc-w" title="retrieval weight"><span class="nc-w-bar"><i style="width:'+(100*nb.weight/wmax).toFixed(0)+'%;background:'+color+'"></i></span><b>'+Math.round(nb.weight*100)+'</b></span></div>'+
       '<div class="nc-sub"><span class="nc-geo'+(cr?' xr':'')+'">'+(cr?'cross-region':'same-region')+'</span><span class="nc-pull">'+esc(c.crop)+' analogue · Δ '+pullTxt+' t/ha</span></div>'+
       '<div class="nc-stats"><div class="nc-stat"><span class="nc-k">retrieval weight</span><span class="nc-v">'+Math.round(nb.weight*100)+'%</span></div>'+
-        '<div class="nc-stat"><span class="nc-k">q_agro contribution</span><span class="nc-v" style="color:'+dc(dirFrom(nb.weight*pull))+'">'+fd(nb.weight*pull)+'</span></div></div>'+
+        '<div class="nc-stat"><span class="nc-k">q_agro contribution</span><span class="nc-v" style="color:'+dc(dirFrom(contrib))+'">'+fd(contrib)+'</span></div>'+
+        '<div class="nc-stat"><span class="nc-k">GT diff</span><span class="nc-v">'+(Number.isFinite(gtDiff)?gtDiff.toFixed(2):"n/a")+'</span></div></div>'+
       '<div class="nc-views">'+vrows+'</div></div>';
   }).join("");
   box.innerHTML='<div class="ncards">'+html+'</div>';
