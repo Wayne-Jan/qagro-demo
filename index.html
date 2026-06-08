@@ -171,6 +171,7 @@ white-space:nowrap;border:1px solid rgba(255,255,255,.18);}
 .lpoph{font-size:9.5px;text-transform:uppercase;letter-spacing:.55px;color:var(--mut);font-weight:700;text-align:right;}
 .lpoph:first-child{text-align:left;}
 .lpok{color:var(--mut);font-size:11px;}
+.lpgt{font-weight:800;color:var(--ink);text-decoration:underline;text-decoration-thickness:1.4px;text-underline-offset:2px;}
 .lpon{font-variant-numeric:tabular-nums;font-weight:700;text-align:right;}
 .side{height:620px;display:flex;flex-direction:column;}
 .side-head{padding-bottom:16px;border-bottom:1px solid var(--line);flex:none;}
@@ -509,7 +510,7 @@ function outcomePopup(c,role){
     '<span class="lpok">Base</span><span class="lpon">'+pn(o.basePrediction)+'</span><span class="lpon">—</span>'+
     '<span class="lpok">Calibration</span><span class="lpon">'+pn(o.calPrediction)+'</span><span class="lpon" style="color:'+dc(dirFrom(o.calPredictionDelta))+'">'+pd(o.calPredictionDelta)+'</span>'+
     '<span class="lpok">q_agro</span><span class="lpon">'+pn(o.qagPrediction)+'</span><span class="lpon" style="color:'+dc(dirFrom(o.qagPredictionDelta))+'">'+pd(o.qagPredictionDelta)+'</span>'+
-    '<span class="lpok">Ground Truth</span><span class="lpon" style="color:#0072CE">'+pn(o.targetYield)+'</span><span class="lpon" style="color:#D55E00">'+pd(gtDiff)+'</span>'+
+    '<span class="lpok lpgt">Ground Truth</span><span class="lpon" style="color:#0072CE">'+pn(o.targetYield)+'</span><span class="lpon" style="color:#D55E00">'+pd(gtDiff)+'</span>'+
     '</div></div>';
 }
 function neighborPopup(c,nb,role){
