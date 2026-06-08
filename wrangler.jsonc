@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "qagro-demo",
+  "compatibility_date": "2026-06-08",
+  "pages_build_output_dir": ".",
+  "r2_buckets": [
+    {
+      "binding": "QAGRO_DATA",
+      "bucket_name": "yieldsat-qagro-demo"
+    }
+  ]
+}

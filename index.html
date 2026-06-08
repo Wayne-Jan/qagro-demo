@@ -42,6 +42,11 @@ background-image:radial-gradient(circle at 1px 1px,rgba(26,34,48,.035) 1px,trans
 .modblock{padding:0;border-top:1px solid var(--line);margin:0;}
 .mh{font-size:11.5px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--indigo);margin-bottom:12px;}
 .mh-sub{display:block;font-size:9.5px;font-weight:500;letter-spacing:.2px;text-transform:none;color:var(--mut);margin-top:4px;}
+.auth-card{border:1px solid var(--line);background:var(--paper2);border-radius:10px;padding:18px 18px 20px;max-width:440px;}
+.auth-title{font-size:13px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--indigo);margin-bottom:8px;}
+.auth-copy{font-size:13px;line-height:1.45;color:var(--slate);margin:0 0 14px;}
+.auth-btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid #2f24aa;background:var(--indigo);color:#fff;text-decoration:none;border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;box-shadow:0 6px 14px rgba(69,56,201,.18);}
+.auth-btn:hover{background:#3629b0;color:#fff;}
 .mod-row{display:grid;grid-template-columns:88px 1fr 88px;align-items:center;gap:9px;margin-bottom:9px;}
 .mod-name{font-size:12.5px;font-weight:700;color:var(--slate);}
 .mod-track{position:relative;height:16px;background:#f0ece4;border-radius:6px;overflow:hidden;}
@@ -455,7 +460,7 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
     <div class="ppanes">
       <div class="ppane active" data-pane="main">
         <div id="correction" class="correction"></div>
-        <div class="attrblock" id="attrblock"><div class="mh">Calibration attribution <span class="mh-sub">(t/ha Shapley)</span></div><div id="attrbars"></div></div>
+        <div class="attrblock" id="attrblock"><div class="mh">q_agro correction attribution <span class="mh-sub">(t/ha Shapley)</span></div><div id="attrbars"></div></div>
         <div class="modblock" id="modblock"><div class="mh">Analogue retrieval basis</div><div id="modbars"></div></div>
       </div>
       <div class="ppane" data-pane="why">
@@ -472,7 +477,7 @@ body.street .fitbtn:hover{background:#fff;border-color:rgba(26,34,48,.28);box-sh
 <script>let CASES=[];
 let DATA_MANIFEST=null;
 let DATA_PARAMS=new URLSearchParams(location.search);
-let DATA_ROOT=(DATA_PARAMS.get("dataRoot")||DATA_PARAMS.get("data")||window.QAGRO_DATA_ROOT||"https://pub-dfabdd6b6854479ea0ca9290a9333ffd.r2.dev/qagro_demo/_local_data_full").replace(/\/$/,"");
+let DATA_ROOT=(DATA_PARAMS.get("dataRoot")||DATA_PARAMS.get("data")||window.QAGRO_DATA_ROOT||"/data").replace(/\/$/,"");
 let CASE_CACHE=new Map();
 let FOOTPRINTS=null;
 let INDEX_LOADING=false;
@@ -495,7 +500,12 @@ function viewMagFromWidth(w){w=Number(w)||0;if(w>=75)return "large";if(w>=50)ret
 function relFrom(c){return c.qagro_vs_calibration==="opposite"?"opposite_direction":"same_direction";}
 function helpedFrom(row){var base=Math.abs(Number(row.base_residual)),qag=Math.abs(Number(row.qagro_residual));return Number.isFinite(base)&&Number.isFinite(qag)?qag<=base:Boolean(row.helped);}
 function caseNumber(i){return String(i+1).padStart(2,"0");}
-async function fetchJson(path){var r=await fetch(path);if(!r.ok)throw new Error(path+" HTTP "+r.status);return await r.json();}
+function authRequiredError(){var e=new Error("Protected data sign-in required");e.authRequired=true;return e;}
+async function fetchJson(path){var r=await fetch(path,{credentials:"same-origin"}),ct=(r.headers.get("content-type")||"").toLowerCase();
+  if(r.status===401||r.status===403||(r.redirected&&r.url.indexOf("/cdn-cgi/access/")>=0))throw authRequiredError();
+  if(!r.ok)throw new Error(path+" HTTP "+r.status);
+  if(ct.indexOf("json")<0){var body=await r.text();if(r.url.indexOf("/cdn-cgi/access/")>=0||body.indexOf("Cloudflare Access")>=0)throw authRequiredError();throw new Error(path+" returned "+(ct||"non-JSON"));}
+  return await r.json();}
 async function loadManifest(){DATA_MANIFEST=await fetchJson(DATA_ROOT+"/manifest.json");INDEX_TOTAL=(DATA_MANIFEST.index_shards||[]).length;return DATA_MANIFEST;}
 async function loadFootprints(){if(FOOTPRINTS)return FOOTPRINTS;try{FOOTPRINTS=await fetchJson(DATA_ROOT+"/field_footprints.json");}catch(err){console.warn("field footprints unavailable",err);FOOTPRINTS={};}return FOOTPRINTS;}
 function footprintFor(name){var fp=FOOTPRINTS&&FOOTPRINTS[name];if(!fp)return null;return {ring:fp.ring,bbox:fp.bbox,anchor:fp.anchor||fp.centroid||null,source:fp.source_mask||fp.source||""};}
@@ -520,7 +530,8 @@ function modalityFrom(raw,neighbors,qagDelta){if(raw.modality&&raw.modality.leng
 function chipsFrom(raw,neighbors){var weighted=neighbors.reduce(function(a,n){return a+n.weight*(n.dir==="negative"?-1:(n.dir==="positive"?1:0));},0);return [{k:"calibration shift",v:dirFrom(raw.calibration_prediction_delta)+" / "+magFrom(raw.calibration_prediction_delta),tone:"neutral"},{k:"q_agro correction",v:dirFrom(raw.qagro_prediction_delta)+" / "+magFrom(raw.qagro_prediction_delta),tone:"neutral"},{k:"q_agro vs calibration",v:(raw.qagro_vs_calibration==="opposite"?"opposite direction":"same direction"),tone:raw.qagro_vs_calibration==="opposite"?"warn":"good"},{k:"evidence status",v:String(raw.evidence_status||"unknown"),tone:raw.evidence_status==="topk_exported"?"good":"neutral"},{k:"neighbour direction",v:neighbors.length?dirFrom(weighted)+" (weighted)":"not exported",tone:"neutral"},{k:"modality agreement",v:String(raw.stance||"mixed"),tone:raw.stance==="conflict"?"warn":"good"}];}
 function geoNote(raw,neighbors){if(!neighbors.length)return "query placeholder · "+String(raw.evidence_status||"needs_topk_export");var cross=neighbors.filter(function(n){return n.geo==="cross-region";}).length;if(cross===0)return "all analogues local";if(cross===neighbors.length)return "all analogues cross-region";return cross+" cross-region analogue"+(cross>1?"s":"");}
 function renderLoading(i,c){active=i;setCur(i);markSel(i);document.getElementById("field").innerHTML=fieldTitle(c);document.getElementById("field").title=c.field;document.getElementById("correction").innerHTML='<div class="bh-sub2">Loading case evidence...</div>';document.getElementById("attrblock").style.display="none";document.getElementById("modblock").style.display="none";document.getElementById("decomp").innerHTML="";document.getElementById("fused").innerHTML="";document.getElementById("nbt").innerHTML="";document.getElementById("chips").innerHTML="";}
-function initData(){document.getElementById("cboxCur").textContent="Loading q_agro cases...";loadInitialIndex().catch(function(err){console.error(err);document.getElementById("cboxCur").textContent="Failed to load data";document.getElementById("count").textContent=err.message;});}
+function showAuthRequired(){document.getElementById("field").innerHTML='<span class="hc">q_agro demo</span>';document.getElementById("cboxCur").textContent="Protected data";document.getElementById("prev").disabled=true;document.getElementById("next").disabled=true;document.getElementById("attrblock").style.display="none";document.getElementById("modblock").style.display="none";document.getElementById("decomp").innerHTML="";document.getElementById("fused").innerHTML="";document.getElementById("nbt").innerHTML="";document.getElementById("chips").innerHTML="";document.getElementById("correction").innerHTML='<div class="auth-card"><div class="auth-title">Data access required</div><p class="auth-copy">This public demo loads its case evidence from protected YieldSAT data. Sign in to load the interactive cases.</p><a class="auth-btn" href="/auth/start">Sign in to load data</a></div>';}
+function initData(){document.getElementById("cboxCur").textContent="Loading q_agro cases...";loadInitialIndex().catch(function(err){console.error(err);if(err&&err.authRequired){showAuthRequired();return;}document.getElementById("cboxCur").textContent="Failed to load data";document.getElementById("count").textContent=err.message;});}
 function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
 function nnLabel(role){return String(role).replace(/^NN/,"Top-");}
 function dcls(v){return v<=0?"good":"warn";}
