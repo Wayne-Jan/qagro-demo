@@ -99,6 +99,7 @@ border-radius:7px;padding:4px 8px;letter-spacing:.2px;font-variant-numeric:tabul
 .case-pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 7px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.45px;line-height:1;border:1px solid transparent;white-space:nowrap;}
 .case-pill.good{color:#0c7a4b;background:#eaf4ee;border-color:#c2e0cf;}
 .case-pill.warn{color:#b3530a;background:#fbeede;border-color:#f0d3ad;}
+.case-pill.blue{color:#175e99;background:#eaf4fb;border-color:#bddcf1;}
 .case-pill.neutral{color:var(--slate);background:#efece4;border-color:#ded8ca;}
 .case-meta{display:flex;align-items:center;gap:5px;justify-content:flex-end;flex-wrap:wrap;max-width:170px;}
 .case-dot{color:#c0b7a4;font-weight:600;}
@@ -567,11 +568,12 @@ function pill(txt,tone){return '<span class="case-pill '+tone+'">'+esc(txt)+'</s
 function caseField(c){var p=String(c.shortField||"").split(" · ");return p[p.length-1]||c.field;}
 function srText(c){return "SR "+Number(c.sr).toFixed(2).replace(/0+$/,"").replace(/\.$/,"");}
 function evidenceText(c){return (c.evidenceStatus==="topk_exported"||c.neighbors.length)?"Top-"+(c.k||3):"needs top-k";}
-function caseInner(c){var helped=(c.outcome?c.outcome.helped:c.helped),effect=helped?"helped":"harmed";
+function calWins(c){var o=c.outcome,cal=o?Number(o.calResidual):Number(c.idx&&c.idx.calibrationResidual),qag=o?Number(o.qagResidual):Number(c.idx&&c.idx.qagroResidual);return Number.isFinite(cal)&&Number.isFinite(qag)&&Math.abs(cal)<Math.abs(qag);}
+function caseInner(c){var helped=(c.outcome?c.outcome.helped:c.helped),effect=helped?"helped":"harmed",cw=calWins(c);
   return '<span class="casepick"><span class="cbox-num">'+c.num+'</span><span class="case-main">'+
     '<span class="case-line"><span class="case-title">'+flagChip(c.country)+' '+esc(c.country)+' <span class="case-dot">·</span> <span class="case-crop">'+cropIcon(c.crop)+'</span> '+esc(c.crop)+' <span class="case-dot">·</span> '+fieldIcon()+'<span class="fieldtext">'+esc(caseField(c))+'</span></span></span>'+
     '<span class="case-sub">'+esc(srText(c))+'<span class="case-dot">·</span>'+esc(c.protocol)+'<span class="case-dot">·</span>'+esc(evidenceText(c))+'<span class="case-dot">·</span>'+esc(c.stance)+'</span>'+
-    '</span><span class="case-meta">'+pill(effect,helped?"good":"warn")+'</span></span>';}
+    '</span><span class="case-meta">'+pill(effect,helped?"good":"warn")+(cw?pill("Cal wins","blue"):"")+'</span></span>';}
 function setCur(i){document.getElementById("cboxCur").innerHTML=caseInner(CASES[i]);}
 function markSel(i){document.querySelectorAll("#cboxMenu .cbox-opt").forEach(function(o){o.classList.toggle("sel",parseInt(o.dataset.i,10)===i);});}
 function closeBox(){var b=document.getElementById("cbox");b.classList.remove("open");document.getElementById("cboxBtn").setAttribute("aria-expanded","false");}
